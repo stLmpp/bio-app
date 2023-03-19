@@ -1,0 +1,9 @@
+html.dark-theme {
+  .svelteui-Input-input {
+    color: var(--svelteui-colors-white);
+  }
+
+  .svelteui-Alert-closeButton {
+    color: var(--svelteui-colors-gray100);
+  }
+}

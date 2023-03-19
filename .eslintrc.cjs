@@ -18,3 +18,5 @@ module.exports = {
     node: true,
   },
 };
+
+// TODO add rules

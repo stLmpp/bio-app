@@ -2,7 +2,11 @@
 // for information about these interfaces
 declare global {
   namespace App {
-    // interface Error {}
+    interface Error {
+      message: string;
+      status: number;
+      error: string;
+    }
     interface Locals {
       user: {
         id: string;
@@ -13,7 +17,9 @@ declare global {
         name: string;
       };
     }
-    // interface PageData {}
+    interface PageData {
+      flash?: { type?: string; message?: string } | null;
+    }
     // interface Platform {}
   }
 }
