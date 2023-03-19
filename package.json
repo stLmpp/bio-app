@@ -24,6 +24,7 @@
     "eslint-plugin-svelte3": "^4.0.0",
     "prettier": "^2.8.0",
     "prettier-plugin-svelte": "^2.8.1",
+    "radix-icons-svelte": "^1.2.1",
     "sass": "^1.59.3",
     "smui-theme": "7.0.0-beta.0",
     "svelte": "^3.54.0",

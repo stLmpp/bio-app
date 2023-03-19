@@ -12,7 +12,7 @@ export const actions = {
     const [formData, formError] = await parseFormData(
       zfd.formData({
         usernameOrEmail: zfd.text(
-          z.union([z.string().email().max(254), z.string().min(3).max(50)])
+          z.union([z.string().trim().email().max(254), z.string().trim().min(3).max(50)])
         ),
         password: z.string().min(6),
       }),

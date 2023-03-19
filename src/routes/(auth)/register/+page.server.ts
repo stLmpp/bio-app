@@ -11,8 +11,8 @@ export const actions = {
   default: async (event) => {
     const [form, formError] = await parseFormData(
       zfd.formData({
-        username: zfd.text(z.string().max(254).min(3)),
-        email: zfd.text(z.string().email().max(254)),
+        username: zfd.text(z.string().trim().max(50).min(3)),
+        email: zfd.text(z.string().trim().email().max(254)),
         password: zfd.text(z.string().min(6)),
         regionId: zfd.text(z.string().max(20).optional()),
       }),

@@ -6,4 +6,12 @@ html.dark-theme {
   .svelteui-Alert-closeButton {
     color: var(--svelteui-colors-gray100);
   }
+
+  .svelteui-Input-rightSection {
+    > button {
+      > svg {
+        color: var(--svelteui-colors-gray100);
+      }
+    }
+  }
 }

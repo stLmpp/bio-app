@@ -2,11 +2,13 @@
   import { enhance } from '$app/forms';
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
-  import { Alert, Anchor, Button, Text, TextInput } from '@svelteuidev/core';
+  import { ActionIcon, Alert, Anchor, Button, Text, TextInput } from '@svelteuidev/core';
   import { z } from 'zod';
   import type { ActionData } from './$types';
   import { initFlash } from 'sveltekit-flash-message/client';
   import { page } from '$app/stores';
+  import { EyeOpen, EyeNone } from 'radix-icons-svelte';
+
   const flash = initFlash(page);
 
   export let form: ActionData;
@@ -80,7 +82,19 @@
       minlength={passwordMinLength}
       bind:value={$password}
       error={!!$errors.password && $errors.password}
-    />
+    >
+      <ActionIcon
+        slot="rightSection"
+        type="button"
+        on:click={() => (passwordHidden = !passwordHidden)}
+      >
+        {#if passwordHidden}
+          <EyeNone />
+        {:else}
+          <EyeOpen />
+        {/if}
+      </ActionIcon>
+    </TextInput>
   </div>
   {#if form}
     <Text override={{ mt: '$8' }} align="center" color="red">

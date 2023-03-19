@@ -13,6 +13,7 @@ specifiers:
   eslint-plugin-svelte3: ^4.0.0
   prettier: ^2.8.0
   prettier-plugin-svelte: ^2.8.1
+  radix-icons-svelte: ^1.2.1
   sass: ^1.59.3
   smui-theme: 7.0.0-beta.0
   svelte: ^3.54.0
@@ -39,6 +40,7 @@ devDependencies:
   eslint-plugin-svelte3: 4.0.0_wzem237sbvnwe7n34ytc5phasy
   prettier: 2.8.4
   prettier-plugin-svelte: 2.9.0_k23gl6auqwrxgr3e6o2bajswou
+  radix-icons-svelte: 1.2.1
   sass: 1.59.3
   smui-theme: 7.0.0-beta.0
   svelte: 3.57.0
@@ -1477,6 +1479,10 @@ packages:
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
+    dev: true
+
+  /radix-icons-svelte/1.2.1:
+    resolution: {integrity: sha512-svmiMd0ocpdTm9cvAz0klcZpnh639lVctj6psQiawd4pYalVzOG4cX+JizAgRckyTAsRVdzObP7D2EBrSfdghA==}
     dev: true
 
   /readdirp/3.6.0:

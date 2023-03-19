@@ -3,9 +3,17 @@
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
   import { toSelectOptions } from '$lib/to-select-options';
-  import { Anchor, Button, NativeSelect, Text, TextInput } from '@svelteuidev/core';
+  import {
+    ActionIcon,
+    Anchor,
+    Button,
+    NativeSelect,
+    Text,
+    TextInput,
+  } from '@svelteuidev/core';
   import { z } from 'zod';
   import type { ActionData, PageData } from './$types';
+  import { EyeOpen, EyeNone } from 'radix-icons-svelte';
 
   export let form: ActionData;
   export let data: PageData;
@@ -28,10 +36,10 @@
         password: z
           .string()
           .nonempty('Password is required')
-          .min(
-            passwordMinLength,
-            `Must contain at least ${passwordMinLength} characters`
-          ),
+          .min(passwordMinLength, `Must contain at least ${passwordMinLength} characters`)
+          .regex(/\d/, 'Must contain at least 1 number')
+          .regex(/[a-z]/, 'Must contain at least 1 lowercase letter')
+          .regex(/[A-Z]/, 'Must contain at least 1 uppsercase letter'),
         email: z.string().nonempty('E-mail is required').email().max(emailMaxLength),
         regionId: z.string().max(20).optional(),
       },
@@ -43,7 +51,7 @@
       }
     );
 
-  let passwordHidden = true; // TODO implement this
+  let passwordHidden = true;
 </script>
 
 <Seo
@@ -92,12 +100,24 @@
       label="Password"
       name="password"
       autocomplete="password"
-      type="password"
+      type={passwordHidden ? 'password' : 'text'}
       required
       minlength={passwordMinLength}
       error={!!$errors.password && $errors.password}
       bind:value={$password}
-    />
+    >
+      <ActionIcon
+        slot="rightSection"
+        type="button"
+        on:click={() => (passwordHidden = !passwordHidden)}
+      >
+        {#if passwordHidden}
+          <EyeNone />
+        {:else}
+          <EyeOpen />
+        {/if}
+      </ActionIcon>
+    </TextInput>
     <NativeSelect
       data={toSelectOptions(data.regions, {
         value: (item) => item.id,
