@@ -1,11 +1,13 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
-import { PUBLIC_USER_END_POINT } from '$env/static/public';
+import { AUTH_END_POINT } from '$env/static/private';
 import { prepareStylesSSR } from '@svelteuidev/core';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
+import { http } from '$lib/server/http';
+import { z } from 'zod';
 
 const authHandle = (async ({ event, resolve }) => {
-  if (event.url.pathname.startsWith('/b')) {
+  if (event.url.pathname.startsWith('/b') || event.url.pathname.startsWith('/a')) {
     return resolve(event);
   }
   const accessToken = event.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
@@ -15,28 +17,66 @@ const authHandle = (async ({ event, resolve }) => {
   return Response.redirect(event.url.origin + '/b', 301);
 }) satisfies Handle;
 
-const bHandle = (async ({ event, resolve }) => {
-  if (!event.url.pathname.startsWith('/b')) {
-    return resolve(event);
-  }
+async function getAuthUser(event: RequestEvent) {
   const accessToken = event.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
   if (!accessToken) {
     return Response.redirect(event.url.origin, 301);
   }
-  const response = await event.fetch(`${PUBLIC_USER_END_POINT}/auto-login`, {
+  const [response, responseError] = await http(`${AUTH_END_POINT}/auto-login`, {
+    method: 'POST',
     headers: {
       authorization: `Bearer ${accessToken}`,
     },
-    method: 'POST',
+    fetch: event.fetch,
+    schema: z.object({
+      user: z.object({
+        id: z.string(),
+        username: z.string(),
+        admin: z.boolean(),
+      }),
+      player: z.object({
+        id: z.string(),
+        name: z.string(),
+      }),
+    }),
   });
-  if (!response.ok) {
+  if (responseError) {
     event.cookies.delete(ACCESS_TOKEN_COOKIE_KEY);
     return Response.redirect(event.url.origin, 301);
   }
-  const { user, player } = await response.json();
+  return response;
+}
+
+const aHandle = (async ({ event, resolve }) => {
+  if (!event.url.pathname.startsWith('/a')) {
+    return resolve(event);
+  }
+  const responseOrRedirect = await getAuthUser(event);
+  if (responseOrRedirect instanceof Response) {
+    return responseOrRedirect;
+  }
+  const { user, player } = responseOrRedirect;
+  console.log({ user, player });
+  if (!user.admin) {
+    return Response.redirect(event.url.origin + '/b', 301);
+  }
   event.locals.user = user;
   event.locals.player = player;
   return resolve(event);
 }) satisfies Handle;
 
-export const handle = sequence(prepareStylesSSR, authHandle, bHandle);
+const bHandle = (async ({ event, resolve }) => {
+  if (!event.url.pathname.startsWith('/b')) {
+    return resolve(event);
+  }
+  const responseOrRedirect = await getAuthUser(event);
+  if (responseOrRedirect instanceof Response) {
+    return responseOrRedirect;
+  }
+  const { user, player } = responseOrRedirect;
+  event.locals.user = user;
+  event.locals.player = player;
+  return resolve(event);
+}) satisfies Handle;
+
+export const handle = sequence(prepareStylesSSR, authHandle, aHandle, bHandle);

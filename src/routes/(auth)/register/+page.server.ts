@@ -1,4 +1,4 @@
-import { PUBLIC_USER_END_POINT, PUBLIC_REGION_END_POINT } from '$env/static/public';
+import { AUTH_END_POINT, REGION_END_POINT } from '$env/static/private';
 import { error, fail, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
@@ -21,7 +21,7 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [, responseError] = await http(`${PUBLIC_USER_END_POINT}/register`, {
+    const [, responseError] = await http(`${AUTH_END_POINT}/register`, {
       fetch: event.fetch,
       schema: z.any(),
       method: 'POST',
@@ -35,7 +35,7 @@ export const actions = {
 } satisfies Actions;
 
 export const load = (async ({ fetch, setHeaders }) => {
-  const [regions, regionsError] = await http(`${PUBLIC_REGION_END_POINT}`, {
+  const [regions, regionsError] = await http(`${REGION_END_POINT}`, {
     method: 'GET',
     fetch,
     schema: z.array(

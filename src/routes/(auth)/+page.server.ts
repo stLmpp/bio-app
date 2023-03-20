@@ -1,4 +1,4 @@
-import { PUBLIC_USER_END_POINT } from '$env/static/public';
+import { AUTH_END_POINT } from '$env/static/private';
 import { parseFormData } from '$lib/server/form-data';
 import { http } from '$lib/server/http';
 import { fail, redirect } from '@sveltejs/kit';
@@ -21,7 +21,7 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [response, error] = await http(`${PUBLIC_USER_END_POINT}/login`, {
+    const [response, error] = await http(`${AUTH_END_POINT}/login`, {
       fetch,
       method: 'POST',
       schema: z.object({
@@ -34,7 +34,7 @@ export const actions = {
     }
     const { accessToken } = response;
     cookies.set(ACCESS_TOKEN_COOKIE_KEY, accessToken, { httpOnly: true });
-    throw redirect(302, '/b');
+    throw redirect(301, '/a'); // TODO figure out why it's no redirecting to /b when not an admin
   },
 } satisfies Actions;
 
