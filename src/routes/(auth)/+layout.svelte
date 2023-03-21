@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Paper } from '@svelteuidev/core';
+  import { Tile } from 'carbon-components-svelte';
 </script>
 
 <div class="container">
   <div class="card-container">
-    <Paper shadow="sm">
+    <Tile>
       <slot />
-    </Paper>
+    </Tile>
   </div>
 </div>
 

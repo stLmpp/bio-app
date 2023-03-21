@@ -15,7 +15,7 @@ type FormGroupValid<T extends Record<string, ZodType>> = { [K in keyof T]: boole
   group: boolean;
 };
 type FormGroupErrors<T extends Record<string, ZodType>> = {
-  [K in keyof T]: string | null;
+  [K in keyof T]: string | undefined;
 };
 type FormGroupValue<T extends Record<string, ZodType>> = {
   [K in keyof T]: z.infer<T[K]>;
@@ -72,7 +72,10 @@ export function formGroup<T extends Record<string, ZodType>>(
 
   const groupWritable = writable<FormGroupValue<T>>(initial);
   const errorsWritable = writable<FormGroupErrors<T>>(
-    entries.reduce((acc, [key]) => ({ ...acc, [key]: null }), {} as FormGroupErrors<T>)
+    entries.reduce(
+      (acc, [key]) => ({ ...acc, [key]: undefined }),
+      {} as FormGroupErrors<T>
+    )
   );
   const controls: FormGroupControls<T> = {} as any;
   const subscriptions: Unsubscriber[] = [];
@@ -94,7 +97,7 @@ export function formGroup<T extends Record<string, ZodType>>(
             errorsWritable.update((errors) => ({
               ...errors,
               [key]: validation.success
-                ? null
+                ? undefined
                 : formatZodErrorString(validation.error, { onlyFirstError: true }),
             }));
           }
@@ -120,7 +123,7 @@ export function formGroup<T extends Record<string, ZodType>>(
           entries.reduce((acc, [key, value]) => {
             const validation = value.safeParse(values[key]);
             if (validation.success) {
-              (acc as any)[key] = null;
+              (acc as any)[key] = undefined;
             } else {
               (acc as any)[key] = formatZodErrorString(validation.error, {
                 onlyFirstError: true,

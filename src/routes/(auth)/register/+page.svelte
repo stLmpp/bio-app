@@ -2,18 +2,15 @@
   import { enhance } from '$app/forms';
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
-  import { toSelectOptions } from '$lib/to-select-options';
   import {
-    ActionIcon,
-    Anchor,
     Button,
-    NativeSelect,
-    Text,
+    PasswordInput,
+    Select,
+    SelectItem,
     TextInput,
-  } from '@svelteuidev/core';
+  } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ActionData, PageData } from './$types';
-  import { EyeOpen, EyeNone } from 'radix-icons-svelte';
 
   export let form: ActionData;
   export let data: PageData;
@@ -51,7 +48,7 @@
       }
     );
 
-  let passwordHidden = true;
+  $: console.log({ regionId: $regionId });
 </script>
 
 <Seo
@@ -76,67 +73,53 @@
   <div class="fields">
     <TextInput
       id="username"
-      label="Username"
+      labelText="Username"
+      placeholder="Username"
       name="username"
       autocomplete="username"
       required
       minlength={usernameMinLength}
       maxlength={usernameMaxLength}
-      error={!!$errors.username && $errors.username}
+      invalid={!!$errors.username}
+      invalidText={$errors.username}
       bind:value={$username}
     />
     <TextInput
       id="email"
-      label="E-mail"
+      labelText="E-mail"
+      placeholder="E-mail"
       name="email"
       autocomplete="email"
       required
       maxlength={emailMaxLength}
-      error={!!$errors.email && $errors.email}
+      invalid={!!$errors.email}
+      invalidText={$errors.email}
       bind:value={$email}
     />
-    <TextInput
+    <PasswordInput
       id="password"
-      label="Password"
+      labelText="Password"
+      placeholder="Password"
       name="password"
       autocomplete="password"
-      type={passwordHidden ? 'password' : 'text'}
       required
       minlength={passwordMinLength}
-      error={!!$errors.password && $errors.password}
+      invalid={!!$errors.password}
+      invalidText={$errors.password}
       bind:value={$password}
-    >
-      <ActionIcon
-        slot="rightSection"
-        type="button"
-        on:click={() => (passwordHidden = !passwordHidden)}
-      >
-        {#if passwordHidden}
-          <EyeNone />
-        {:else}
-          <EyeOpen />
-        {/if}
-      </ActionIcon>
-    </TextInput>
-    <NativeSelect
-      data={toSelectOptions(data.regions, {
-        value: (item) => item.id,
-        label: (item) => item.name,
-      })}
-      bind:value={$regionId}
-      label="Region"
-      id="regionId"
-      name="regionId"
     />
+    <Select name="regionId" id="regionId" labelText="Region" bind:selected={$regionId}>
+      {#each data.regions as region (region.id)}
+        <SelectItem text={region.name} value={region.id} />
+      {/each}
+    </Select>
   </div>
   {#if form}
-    <Text override={{ mt: '$8' }} align="center" color="red">
-      {form.error.message}
-    </Text>
+    {form.error.message}
   {/if}
   <div class="form-actions">
-    <Button {loading} type="submit">Register</Button>
-    <Anchor href="/">Login</Anchor>
+    <Button disabled={loading} type="submit">Register</Button>
+    <Button href="/">Login</Button>
   </div>
 </form>
 

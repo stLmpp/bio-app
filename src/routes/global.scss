@@ -1,17 +1,1 @@
-html.dark-theme {
-  .svelteui-Input-input {
-    color: var(--svelteui-colors-white);
-  }
-
-  .svelteui-Alert-closeButton {
-    color: var(--svelteui-colors-gray100);
-  }
-
-  .svelteui-Input-rightSection {
-    > button {
-      > svg {
-        color: var(--svelteui-colors-gray100);
-      }
-    }
-  }
-}
+@import 'carbon-components-svelte/css/g100.css';

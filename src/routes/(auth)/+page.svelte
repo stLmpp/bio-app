@@ -2,12 +2,17 @@
   import { enhance } from '$app/forms';
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
-  import { ActionIcon, Alert, Anchor, Button, Text, TextInput } from '@svelteuidev/core';
+  import {
+    TextInput,
+    PasswordInput,
+    Button,
+    ToastNotification,
+    InlineNotification,
+  } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ActionData } from './$types';
   import { initFlash } from 'sveltekit-flash-message/client';
   import { page } from '$app/stores';
-  import { EyeOpen, EyeNone } from 'radix-icons-svelte';
 
   const flash = initFlash(page);
 
@@ -29,23 +34,17 @@
     },
     { usernameOrEmail: '', password: '' }
   );
-
-  let passwordHidden = true; // TODO implement this
 </script>
 
 <Seo title="Login" description="Login to Biomercs and have access to all leaderboards" />
 
 {#if $flash}
-  <Alert
-    title="Success"
-    color="green"
-    override={{ mb: '$12' }}
-    withCloseButton
-    closeButtonLabel="Close success alert"
-    on:close={() => ($flash = null)}
-  >
-    Registered succesfully! Please login now to access the app
-  </Alert>
+  <InlineNotification
+    lowContrast
+    kind="success"
+    title="Success!"
+    subtitle="Registered succesfully! Please login now to access the app"
+  />
 {/if}
 
 <form
@@ -65,45 +64,34 @@
   <div class="fields">
     <TextInput
       id="usernameOrEmail"
-      label="Username or e-mail"
+      labelText="Username or e-mail"
+      placeholder="Username or e-mail"
       name="usernameOrEmail"
       autocomplete="email"
       required
       minlength={usernameOrEmailMinLength}
-      error={!!$errors.usernameOrEmail && $errors.usernameOrEmail}
+      invalid={!!$errors.usernameOrEmail}
+      invalidText={$errors.usernameOrEmail}
       bind:value={$usernameOrEmail}
     />
-    <TextInput
+    <PasswordInput
       id="password"
-      label="Password"
+      labelText="Password"
+      placeholder="Password"
       name="password"
       required
-      type={passwordHidden ? 'password' : 'text'}
       minlength={passwordMinLength}
       bind:value={$password}
-      error={!!$errors.password && $errors.password}
-    >
-      <ActionIcon
-        slot="rightSection"
-        type="button"
-        on:click={() => (passwordHidden = !passwordHidden)}
-      >
-        {#if passwordHidden}
-          <EyeNone />
-        {:else}
-          <EyeOpen />
-        {/if}
-      </ActionIcon>
-    </TextInput>
+      invalid={!!$errors.password}
+      invalidText={$errors.password}
+    />
   </div>
   {#if form}
-    <Text override={{ mt: '$8' }} align="center" color="red">
-      {form.error.message}
-    </Text>
+    {form.error.message}
   {/if}
   <div class="form-actions">
-    <Button {loading} type="submit">Login</Button>
-    <Anchor href="/register">Register</Anchor>
+    <Button type="submit" disabled={loading}>Login</Button>
+    <Button href="/register">Register</Button>
   </div>
 </form>
 

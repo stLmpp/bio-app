@@ -1,7 +1,6 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { AUTH_END_POINT } from '$env/static/private';
-import { prepareStylesSSR } from '@svelteuidev/core';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
 import { http } from '$lib/server/http';
 import { z } from 'zod';
@@ -79,4 +78,4 @@ const bHandle = (async ({ event, resolve }) => {
   return resolve(event);
 }) satisfies Handle;
 
-export const handle = sequence(prepareStylesSSR, authHandle, aHandle, bHandle);
+export const handle = sequence(authHandle, aHandle, bHandle);
