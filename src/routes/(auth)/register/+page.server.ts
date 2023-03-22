@@ -1,7 +1,7 @@
 import { AUTH_END_POINT, REGION_END_POINT } from '$env/static/private';
 import { error, fail } from '@sveltejs/kit';
 import { z } from 'zod';
-import { formData, zfd } from 'zod-form-data';
+import { zfd } from 'zod-form-data';
 import { parseFormData } from '$lib/server/form-data';
 import type { Actions, PageServerLoad } from './$types';
 import { http } from '$lib/server/http';

@@ -1,1 +1,24 @@
-@import 'carbon-components-svelte/css/g100.css';
+$css--font-face: true;
+$css--helpers: true;
+$css--body: true;
+$css--use-layer: true;
+$css--reset: true;
+$css--default-type: true;
+$css--plex: true;
+
+@import 'carbon-components/scss/globals/scss/theme';
+
+$carbon--theme: $carbon--theme--g100;
+
+@include carbon--theme();
+
+@import 'carbon-components/scss/globals/scss/css--reset';
+@import 'carbon-components/scss/globals/scss/css--font-face';
+@import 'carbon-components/scss/globals/scss/css--helpers';
+@import 'carbon-components/scss/globals/scss/css--body';
+
+// Optionally include components that you need
+@import 'carbon-components/scss/components/button/button';
+@import 'carbon-components/scss/components/text-input/text-input';
+@import 'carbon-components/scss/components/tile/tile';
+@import 'carbon-components/scss/components/select/select';
