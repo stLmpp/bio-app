@@ -1,18 +1,18 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { page } from '$app/stores';
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
   import {
-    TextInput,
-    PasswordInput,
     Button,
-    ToastNotification,
     InlineNotification,
+    PasswordInput,
+    TextInput,
   } from 'carbon-components-svelte';
+  import { Login } from 'carbon-icons-svelte';
+  import { initFlash } from 'sveltekit-flash-message/client';
   import { z } from 'zod';
   import type { ActionData } from './$types';
-  import { initFlash } from 'sveltekit-flash-message/client';
-  import { page } from '$app/stores';
 
   const flash = initFlash(page);
 
@@ -21,19 +21,26 @@
   const usernameOrEmailMinLength = 3;
   const passwordMinLength = 6;
   let loading = false;
-  const [{ password, usernameOrEmail }, { valid, errors, showAllErrors }] = formGroup(
-    {
-      usernameOrEmail: z
-        .string()
-        .nonempty('Username or e-mail is required')
-        .min(usernameOrEmailMinLength, 'Must contain at least 3 characters'),
-      password: z
-        .string()
-        .nonempty('Password is required')
-        .min(passwordMinLength, 'Must contain at least 6 characters'),
-    },
-    { usernameOrEmail: '', password: '' }
-  );
+  const [{ password, usernameOrEmail }, { valid, errors, showAllErrors, constraints }] =
+    formGroup(
+      {
+        usernameOrEmail: z
+          .string()
+          .nonempty('Username or e-mail is required')
+          .min(
+            usernameOrEmailMinLength,
+            `Must contain at least ${usernameOrEmailMinLength} characters`
+          ),
+        password: z
+          .string()
+          .nonempty('Password is required')
+          .min(
+            passwordMinLength,
+            `Must contain at least ${passwordMinLength} characters`
+          ),
+      },
+      { usernameOrEmail: '', password: '' }
+    );
 </script>
 
 <Seo title="Login" description="Login to Biomercs and have access to all leaderboards" />
@@ -68,8 +75,7 @@
       placeholder="Username or e-mail"
       name="usernameOrEmail"
       autocomplete="email"
-      required
-      minlength={usernameOrEmailMinLength}
+      {...constraints.usernameOrEmail}
       invalid={!!$errors.usernameOrEmail}
       invalidText={$errors.usernameOrEmail}
       bind:value={$usernameOrEmail}
@@ -79,8 +85,7 @@
       labelText="Password"
       placeholder="Password"
       name="password"
-      required
-      minlength={passwordMinLength}
+      {...constraints.password}
       bind:value={$password}
       invalid={!!$errors.password}
       invalidText={$errors.password}
@@ -90,8 +95,8 @@
     {form.error.message}
   {/if}
   <div class="form-actions">
-    <Button type="submit" disabled={loading}>Login</Button>
-    <Button href="/register">Register</Button>
+    <Button type="submit" disabled={loading} icon={Login}>Login</Button>
+    <Button href="/register" kind="ghost">Register</Button>
   </div>
 </form>
 

@@ -11,6 +11,7 @@
   } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ActionData, PageData } from './$types';
+  import { RequestQuote } from 'carbon-icons-svelte';
 
   export let form: ActionData;
   export let data: PageData;
@@ -18,37 +19,35 @@
   let loading = false;
 
   const usernameMinLength = 3;
-  const usernameMaxLength = 50;
-  const emailMaxLength = 254;
   const passwordMinLength = 6;
 
-  const [{ username, email, password, regionId }, { errors, valid, showAllErrors }] =
-    formGroup(
-      {
-        username: z
-          .string()
-          .nonempty('Username is required')
-          .min(usernameMinLength, `Must contain at least ${usernameMinLength} characters`)
-          .max(usernameMaxLength),
-        password: z
-          .string()
-          .nonempty('Password is required')
-          .min(passwordMinLength, `Must contain at least ${passwordMinLength} characters`)
-          .regex(/\d/, 'Must contain at least 1 number')
-          .regex(/[a-z]/, 'Must contain at least 1 lowercase letter')
-          .regex(/[A-Z]/, 'Must contain at least 1 uppsercase letter'),
-        email: z.string().nonempty('E-mail is required').email().max(emailMaxLength),
-        regionId: z.string().max(20).optional(),
-      },
-      {
-        email: '',
-        password: '',
-        username: '',
-        regionId: 'UNKNOWN',
-      }
-    );
-
-  $: console.log({ regionId: $regionId });
+  const [
+    { username, email, password, regionId },
+    { errors, valid, showAllErrors, constraints },
+  ] = formGroup(
+    {
+      username: z
+        .string()
+        .nonempty('Username is required')
+        .min(usernameMinLength, `Must contain at least ${usernameMinLength} characters`)
+        .max(50),
+      password: z
+        .string()
+        .nonempty('Password is required')
+        .min(passwordMinLength, `Must contain at least ${passwordMinLength} characters`)
+        .regex(/\d/, 'Must contain at least 1 number')
+        .regex(/[a-z]/, 'Must contain at least 1 lowercase letter')
+        .regex(/[A-Z]/, 'Must contain at least 1 uppsercase letter'),
+      email: z.string().nonempty('E-mail is required').email().max(254),
+      regionId: z.string().max(20).optional(),
+    },
+    {
+      email: '',
+      password: '',
+      username: '',
+      regionId: 'UNKNOWN',
+    }
+  );
 </script>
 
 <Seo
@@ -77,9 +76,7 @@
       placeholder="Username"
       name="username"
       autocomplete="username"
-      required
-      minlength={usernameMinLength}
-      maxlength={usernameMaxLength}
+      {...constraints.username}
       invalid={!!$errors.username}
       invalidText={$errors.username}
       bind:value={$username}
@@ -90,8 +87,7 @@
       placeholder="E-mail"
       name="email"
       autocomplete="email"
-      required
-      maxlength={emailMaxLength}
+      {...constraints.email}
       invalid={!!$errors.email}
       invalidText={$errors.email}
       bind:value={$email}
@@ -102,10 +98,11 @@
       placeholder="Password"
       name="password"
       autocomplete="password"
-      required
-      minlength={passwordMinLength}
+      {...constraints.password}
+      pattern="[A-Za-z\d]"
       invalid={!!$errors.password}
       invalidText={$errors.password}
+      helperText="Password must contain at least {passwordMinLength} characters, 1 lowercase letter, 1 uppercase letter and 1 number"
       bind:value={$password}
     />
     <Select name="regionId" id="regionId" labelText="Region" bind:selected={$regionId}>
@@ -118,8 +115,8 @@
     {form.error.message}
   {/if}
   <div class="form-actions">
-    <Button disabled={loading} type="submit">Register</Button>
-    <Button href="/">Login</Button>
+    <Button disabled={loading} type="submit" icon={RequestQuote}>Register</Button>
+    <Button href="/" kind="ghost">Login</Button>
   </div>
 </form>
 

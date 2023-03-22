@@ -1,15 +1,28 @@
 import { browser } from '$app/environment';
+import { generateSchema } from '@anatine/zod-openapi';
 import { onDestroy } from 'svelte';
 import {
   writable,
-  type Unsubscriber,
-  type Writable,
   type Readable,
+  type Unsubscriber,
   type Updater,
+  type Writable,
 } from 'svelte/store';
 import type { Simplify } from 'type-fest';
 import type { z, ZodType } from 'zod';
 import { formatZodErrorString } from './zod-error-formatter';
+
+interface FormConstraints {
+  // All
+  required?: boolean;
+  // String
+  maxlenght?: number;
+  minlength?: number;
+  pattern?: string;
+  // Number/Date
+  max?: number;
+  min?: number;
+}
 
 type FormGroupValid<T extends Record<string, ZodType>> = { [K in keyof T]: boolean } & {
   group: boolean;
@@ -23,6 +36,9 @@ type FormGroupValue<T extends Record<string, ZodType>> = {
 type FormGroupControls<T extends Record<string, ZodType>> = {
   [K in keyof T]: Writable<z.input<T[K]>>;
 };
+type FormGroupConstraints<T extends Record<string, unknown>> = {
+  [K in keyof T]: FormConstraints;
+};
 
 type FormGroup<T extends Record<string, ZodType>> = Simplify<
   [
@@ -31,6 +47,7 @@ type FormGroup<T extends Record<string, ZodType>> = Simplify<
       group: Readable<FormGroupValue<T>>;
       valid: Readable<FormGroupValid<T>>;
       errors: Readable<FormGroupErrors<T>>;
+      constraints: Readonly<FormGroupConstraints<T>>;
       showAllErrors: () => void;
       set: (value: FormGroupValue<T>) => void;
       update: (updater: Updater<FormGroupValue<T>>) => void;
@@ -80,8 +97,34 @@ export function formGroup<T extends Record<string, ZodType>>(
   const controls: FormGroupControls<T> = {} as any;
   const subscriptions: Unsubscriber[] = [];
   const values: FormGroupValue<T> = {} as any;
+  const constraints: FormGroupConstraints<T> = {} as any;
   for (const [key, value] of entries) {
     let index = 0;
+    const jsonSchema = generateSchema(value);
+    const controlContraints: FormConstraints = {};
+    if (jsonSchema.type === 'string') {
+      if (typeof jsonSchema.maxLength !== 'undefined') {
+        controlContraints.maxlenght = jsonSchema.maxLength;
+      }
+      if (typeof jsonSchema.minLength !== 'undefined') {
+        controlContraints.minlength = jsonSchema.minLength;
+      }
+      if (typeof jsonSchema.pattern !== 'undefined') {
+        controlContraints.pattern = jsonSchema.pattern;
+      }
+    }
+    if (jsonSchema.type === 'number' || jsonSchema.type === 'integer') {
+      if (typeof jsonSchema.maximum !== 'undefined') {
+        controlContraints.max = jsonSchema.maximum;
+      }
+      if (typeof jsonSchema.minimum !== 'undefined') {
+        controlContraints.min = jsonSchema.minimum;
+      }
+    }
+    if (!value.isOptional()) {
+      controlContraints.required = true;
+    }
+    (constraints as any)[key] = controlContraints;
     const valueWritable = writable((initial as any)[key]);
     if (browser) {
       subscriptions.push(
@@ -118,6 +161,7 @@ export function formGroup<T extends Record<string, ZodType>>(
       group: groupWritable,
       valid: validWritable,
       errors: errorsWritable,
+      constraints,
       showAllErrors: () => {
         errorsWritable.set(
           entries.reduce((acc, [key, value]) => {

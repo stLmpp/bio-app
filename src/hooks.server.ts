@@ -55,7 +55,6 @@ const aHandle = (async ({ event, resolve }) => {
     return responseOrRedirect;
   }
   const { user, player } = responseOrRedirect;
-  console.log({ user, player });
   if (!user.admin) {
     return Response.redirect(event.url.origin + '/b', 301);
   }
