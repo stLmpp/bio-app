@@ -1,10 +1,11 @@
 <script lang="ts">
-  import './global.scss';
-  import { beforeNavigate, afterNavigate } from '$app/navigation';
+  import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { isNavigating, setIsNavigating } from '$lib/stores/navigating';
+  import { isRequesting } from '$lib/stores/requesting';
   import { ProgressBar } from 'carbon-components-svelte';
+  import { combineLatest, debounceTime, map } from 'rxjs';
   import { slide } from 'svelte/transition';
-  import { debounceTime } from 'rxjs';
+  import './global.scss';
 
   beforeNavigate(() => {
     setIsNavigating(true);
@@ -14,7 +15,10 @@
     setIsNavigating(false);
   });
 
-  const isNavigatingWithDebounceTime = isNavigating.pipe(debounceTime(200));
+  const isNavigatingWithDebounceTime = combineLatest([isNavigating, isRequesting]).pipe(
+    debounceTime(200),
+    map((sources) => sources.some((source) => source))
+  );
 </script>
 
 {#if $isNavigatingWithDebounceTime}

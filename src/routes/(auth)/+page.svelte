@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
   import { page } from '$app/stores';
   import Seo from '$lib/components/Seo.svelte';
   import { formGroup } from '$lib/form-group';
@@ -12,6 +11,7 @@
   import { Login } from 'carbon-icons-svelte';
   import { initFlash } from 'sveltekit-flash-message/client';
   import { z } from 'zod';
+  import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData } from './$types';
 
   const flash = initFlash(page);
@@ -39,7 +39,7 @@
             `Must contain at least ${passwordMinLength} characters`
           ),
       },
-      { usernameOrEmail: '', password: '' }
+      { usernameOrEmail: $page.url.searchParams.get('username') ?? '', password: '' }
     );
 </script>
 
@@ -56,7 +56,7 @@
 
 <form
   method="POST"
-  use:enhance={({ cancel }) => {
+  use:enhanceForm={({ cancel }) => {
     if (!$valid.group) {
       showAllErrors();
       return cancel();
@@ -92,7 +92,7 @@
     />
   </div>
   {#if form}
-    {form.error.message}
+    <p class="form-error">{form.error.message}</p>
   {/if}
   <div class="form-actions">
     <Button type="submit" disabled={loading} icon={Login}>Login</Button>
@@ -101,6 +101,7 @@
 </form>
 
 <style lang="scss">
+  @use 'carbon-components/scss/globals/scss/vars' as var;
   .fields {
     display: flex;
     flex-direction: column;
@@ -113,5 +114,11 @@
     align-items: center;
     margin-top: 2rem;
     column-gap: 1rem;
+  }
+
+  .form-error {
+    color: var.$red-40;
+    margin-top: 1rem;
+    text-align: center;
   }
 </style>

@@ -8,14 +8,15 @@ declare global {
       error: string;
     }
     interface Locals {
-      user: {
+      user?: {
         id: string;
         username: string;
-      };
-      player: {
+        admin: boolean;
+      } | null;
+      player?: {
         id: string;
         name: string;
-      };
+      } | null;
     }
     interface PageData {
       flash?: { type?: string; message?: string } | null;

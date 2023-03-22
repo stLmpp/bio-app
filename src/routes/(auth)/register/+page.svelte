@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
   import Seo from '$lib/components/Seo.svelte';
+  import { enhanceForm } from '$lib/enhance-form';
   import { formGroup } from '$lib/form-group';
   import {
     Button,
@@ -9,9 +9,9 @@
     SelectItem,
     TextInput,
   } from 'carbon-components-svelte';
+  import { RequestQuote } from 'carbon-icons-svelte';
   import { z } from 'zod';
   import type { ActionData, PageData } from './$types';
-  import { RequestQuote } from 'carbon-icons-svelte';
 
   export let form: ActionData;
   export let data: PageData;
@@ -20,6 +20,7 @@
 
   const usernameMinLength = 3;
   const passwordMinLength = 6;
+  const passwordPattern = '[A-Za-z\\d]{6,}';
 
   const [
     { username, email, password, regionId },
@@ -57,7 +58,7 @@
 
 <form
   method="POST"
-  use:enhance={({ cancel }) => {
+  use:enhanceForm={({ cancel }) => {
     if (!$valid.group) {
       showAllErrors();
       return cancel();
@@ -99,7 +100,7 @@
       name="password"
       autocomplete="password"
       {...constraints.password}
-      pattern="[A-Za-z\d]"
+      pattern={passwordPattern}
       invalid={!!$errors.password}
       invalidText={$errors.password}
       helperText="Password must contain at least {passwordMinLength} characters, 1 lowercase letter, 1 uppercase letter and 1 number"
@@ -112,7 +113,7 @@
     </Select>
   </div>
   {#if form}
-    {form.error.message}
+    <p class="form-error">{form.error.message}</p>
   {/if}
   <div class="form-actions">
     <Button disabled={loading} type="submit" icon={RequestQuote}>Register</Button>
@@ -121,6 +122,8 @@
 </form>
 
 <style lang="scss">
+  @use 'carbon-components/scss/globals/scss/vars' as var;
+
   .fields {
     display: flex;
     flex-direction: column;
@@ -133,5 +136,11 @@
     align-items: center;
     margin-top: 2rem;
     column-gap: 1rem;
+  }
+
+  .form-error {
+    color: var.$red-40;
+    margin-top: 1rem;
+    text-align: center;
   }
 </style>

@@ -1,9 +1,9 @@
 import { AUTH_END_POINT, REGION_END_POINT } from '$env/static/private';
-import { error, fail, type ServerLoad } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { z } from 'zod';
-import { zfd } from 'zod-form-data';
+import { formData, zfd } from 'zod-form-data';
 import { parseFormData } from '$lib/server/form-data';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { http } from '$lib/server/http';
 import { redirect } from 'sveltekit-flash-message/server';
 
@@ -30,7 +30,10 @@ export const actions = {
     if (responseError) {
       return fail(responseError.status, { error: responseError });
     }
-    throw redirect(301, '/', {}, event);
+    const query = new URLSearchParams({
+      username: form.username,
+    });
+    throw redirect(301, `/?${query.toString()}`, {}, event);
   },
 } satisfies Actions;
 
@@ -52,4 +55,4 @@ export const load = (async ({ fetch, setHeaders }) => {
     'Cache-Control': 'public, max-age=3600',
   });
   return { regions };
-}) satisfies ServerLoad;
+}) satisfies PageServerLoad;

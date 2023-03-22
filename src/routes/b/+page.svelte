@@ -11,3 +11,5 @@ Welcome to logged area {JSON.stringify(data, null, 2)}
 <form method="POST" action="?/logout" use:enhance>
   <button type="submit">Logout</button>
 </form>
+
+<a href="/a">Go to A</a>
