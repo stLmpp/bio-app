@@ -33,7 +33,7 @@ export const actions = {
     const query = new URLSearchParams({
       username: form.username,
     });
-    throw redirect(301, `/?${query.toString()}`, {}, event);
+    throw redirect(301, `/login?${query.toString()}`, {}, event);
   },
 } satisfies Actions;
 
