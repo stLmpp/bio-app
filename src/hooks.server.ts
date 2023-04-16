@@ -1,5 +1,5 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit';
-import { AUTH_END_POINT } from '$env/static/private';
+import { AUTH_AUTO_LOGIN_END_POINT } from '$env/static/private';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
 import { http } from '$lib/server/http';
 import { z } from 'zod';
@@ -53,6 +53,8 @@ const AutoLoginSchema = z.object({
 async function getAuthUser(event: RequestEvent) {
   const accessToken = event.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
   if (!accessToken) {
+    event.locals.player = null;
+    event.locals.user = null;
     return Response.redirect(event.url.origin, 301);
   }
   const decoded = safeDecode(accessToken);
@@ -62,7 +64,7 @@ async function getAuthUser(event: RequestEvent) {
     event.locals.user = null;
     return Response.redirect(event.url.origin, 301);
   }
-  const [response, responseError] = await http(`${AUTH_END_POINT}/auto-login`, {
+  const [response, responseError] = await http(AUTH_AUTO_LOGIN_END_POINT, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${accessToken}`,

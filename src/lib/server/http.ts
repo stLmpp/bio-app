@@ -4,13 +4,24 @@ const HttpErrorSchema = z.object({
   status: z.number(),
   message: z.string(),
   error: z.string(),
+  correlationId: z.string().optional(),
+  errorCode: z.string(),
 });
 
 export type HttpError = z.infer<typeof HttpErrorSchema>;
 
 type HttpResponseError = [null, HttpError];
 type HttpResponseSuccess<T extends ZodSchema> = [z.infer<T>, null];
-export type HttpResponse<T extends ZodSchema> = HttpResponseError | HttpResponseSuccess<T>;
+export type HttpResponse<T extends ZodSchema> =
+  | HttpResponseError
+  | HttpResponseSuccess<T>;
+
+const INTERNAL_SERVER_ERROR: HttpError = {
+  status: 500,
+  message: 'Internal server error',
+  error: 'Internal server error',
+  errorCode: 'FRONT-9999',
+};
 
 export async function http<T extends ZodSchema>(
   url: string,
@@ -42,10 +53,7 @@ export async function http<T extends ZodSchema>(
         '\nError:',
         responseJson
       );
-      return [
-        null,
-        { status: 500, message: 'Internal server error', error: 'Internal server error' },
-      ];
+      return [null, INTERNAL_SERVER_ERROR];
     }
     return [null, errorValidation.data];
   }
@@ -57,10 +65,7 @@ export async function http<T extends ZodSchema>(
       '\nResponse:',
       responseJson
     );
-    return [
-      null,
-      { status: 500, message: 'Internal server error', error: 'Internal server error' },
-    ];
+    return [null, INTERNAL_SERVER_ERROR];
   }
   return [validation.data, null];
 }
