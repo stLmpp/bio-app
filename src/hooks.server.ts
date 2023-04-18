@@ -40,12 +40,12 @@ function safeDecode(jwt: string): JwtPayload | null {
 
 const AutoLoginSchema = z.object({
   user: z.object({
-    id: z.string(),
+    userId: z.number(),
     username: z.string(),
     admin: z.boolean(),
   }),
   player: z.object({
-    id: z.string(),
+    playerId: z.number(),
     name: z.string(),
   }),
 });

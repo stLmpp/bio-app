@@ -14,7 +14,7 @@ export const actions = {
         username: zfd.text(z.string().trim().max(50).min(3)),
         email: zfd.text(z.string().trim().email().max(254)),
         password: zfd.text(z.string().min(6)),
-        regionId: zfd.text(z.string().max(20).optional()),
+        regionId: zfd.numeric(z.number().optional()),
       }),
       await event.request.formData()
     );
@@ -43,8 +43,9 @@ export const load = (async ({ fetch, setHeaders }) => {
     fetch,
     schema: z.array(
       z.object({
-        id: z.string(),
+        regionId: z.number(),
         name: z.string(),
+        shortName: z.string(),
       })
     ),
   });

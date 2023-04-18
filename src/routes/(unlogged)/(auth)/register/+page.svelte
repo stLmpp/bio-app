@@ -24,7 +24,7 @@
 
   const [
     { username, email, password, regionId },
-    { errors, valid, showAllErrors, constraints },
+    { errors, valid, showAllErrors, constraints, group },
   ] = formGroup(
     {
       username: z
@@ -40,13 +40,13 @@
         .regex(/[a-z]/, 'Must contain at least 1 lowercase letter')
         .regex(/[A-Z]/, 'Must contain at least 1 uppsercase letter'),
       email: z.string().nonempty('E-mail is required').email().max(254),
-      regionId: z.string().max(20).optional(),
+      regionId: z.number().optional(),
     },
     {
       email: '',
       password: '',
       username: '',
-      regionId: 'UNKNOWN',
+      regionId: -1,
     }
   );
 </script>
@@ -107,8 +107,8 @@
       bind:value={$password}
     />
     <Select name="regionId" id="regionId" labelText="Region" bind:selected={$regionId}>
-      {#each data.regions as region (region.id)}
-        <SelectItem text={region.name} value={region.id} />
+      {#each data.regions as region (region.regionId)}
+        <SelectItem text={region.name} value={region.regionId} />
       {/each}
     </Select>
   </div>
