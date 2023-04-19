@@ -33,8 +33,8 @@ export const actions = {
       return fail(error.status, { error });
     }
     const { accessToken } = response;
-    cookies.set(ACCESS_TOKEN_COOKIE_KEY, accessToken, { httpOnly: true });
-    throw redirect(301, '/a'); // TODO figure out why it's no redirecting to /b when not an admin
+    cookies.set(ACCESS_TOKEN_COOKIE_KEY, accessToken);
+    throw redirect(301, '/a');
   },
 } satisfies Actions;
 

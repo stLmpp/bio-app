@@ -9,12 +9,12 @@ declare global {
     }
     interface Locals {
       user?: {
-        userId: number;
+        userId: bigint;
         username: string;
         admin: boolean;
       } | null;
       player?: {
-        playerId: number;
+        playerId: bigint;
         name: string;
       } | null;
     }
