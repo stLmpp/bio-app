@@ -4,12 +4,12 @@ import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 import { parseFormData } from '$lib/server/form-data';
 import type { Actions, PageServerLoad } from './$types';
-import { http } from '$lib/server/http';
+import { httpServer } from '$lib/server/http-server';
 import { redirect } from 'sveltekit-flash-message/server';
 
 export const actions = {
   default: async (event) => {
-    const [form, formError] = await parseFormData(
+    const [formError, form] = await parseFormData(
       zfd.formData({
         username: zfd.text(z.string().trim().max(50).min(3)),
         email: zfd.text(z.string().trim().email().max(254)),
@@ -21,7 +21,7 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [, responseError] = await http(`${AUTH_END_POINT}/register`, {
+    const [responseError] = await httpServer(`${AUTH_END_POINT}/register`, {
       fetch: event.fetch,
       schema: z.any(),
       method: 'POST',
@@ -38,7 +38,7 @@ export const actions = {
 } satisfies Actions;
 
 export const load = (async ({ fetch, setHeaders }) => {
-  const [regions, regionsError] = await http(`${REGION_END_POINT}`, {
+  const [regionsError, regions] = await httpServer(`${REGION_END_POINT}`, {
     method: 'GET',
     fetch,
     schema: z.array(

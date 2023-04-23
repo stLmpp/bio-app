@@ -4,8 +4,34 @@
     Header,
     HeaderActionLink,
     HeaderUtilities,
+    SideNav,
+    SideNavItems,
+    SideNavLink,
   } from 'carbon-components-svelte';
   import { Home } from 'carbon-icons-svelte';
+
+  import { page } from '$app/stores';
+  import Notifications from '../../lib/components/Notifications.svelte';
+
+  interface Route {
+    href: string;
+    text: string;
+  }
+
+  const routes: Route[] = [
+    {
+      href: '/a',
+      text: 'Home',
+    },
+    {
+      href: '/a/game-mini-game/link',
+      text: 'Link Game -> Mini game',
+    },
+    {
+      href: '/a/platform-game-mini-game/link',
+      text: 'Link Platform -> Game mini game',
+    },
+  ];
 </script>
 
 <Header company="Biomercs">
@@ -14,4 +40,20 @@
   </HeaderUtilities>
 </Header>
 
-<Content><slot /></Content>
+<SideNav fixed isOpen>
+  <SideNavItems>
+    {#each routes as route (route.href)}
+      <SideNavLink
+        text={route.text}
+        href={route.href}
+        isSelected={$page.url.pathname === route.href}
+      />
+    {/each}
+  </SideNavItems>
+</SideNav>
+
+<Content>
+  <slot />
+</Content>
+
+<Notifications showTechnicalError />

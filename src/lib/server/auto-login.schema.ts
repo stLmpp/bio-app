@@ -1,14 +1,13 @@
 import { z } from 'zod';
-import { zStringBigInt } from '$lib/z-string-big-int';
 
 export const AutoLoginSchema = z.object({
   user: z.object({
-    userId: zStringBigInt,
+    userId: z.string(),
     username: z.string(),
     admin: z.boolean(),
   }),
   player: z.object({
-    playerId: zStringBigInt,
+    playerId: z.string(),
     name: z.string(),
   }),
 });

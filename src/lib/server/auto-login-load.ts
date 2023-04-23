@@ -1,6 +1,6 @@
-import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
+import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { safeDecode } from '$lib/server/safe-decode-jwt';
-import { http } from '$lib/server/http';
+import { httpServer } from '$lib/server/http-server';
 import { AUTH_AUTO_LOGIN_END_POINT } from '$env/static/private';
 import { AutoLoginSchema } from '$lib/server/auto-login.schema';
 import { type Cookies, redirect } from '@sveltejs/kit';
@@ -18,7 +18,7 @@ export function autoLoginLoad(admin = false) {
       locals.user = null;
       throw redirect(301, '/');
     }
-    const [response, responseError] = await http(AUTH_AUTO_LOGIN_END_POINT, {
+    const [responseError, response] = await httpServer(AUTH_AUTO_LOGIN_END_POINT, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${accessToken}`,

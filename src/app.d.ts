@@ -6,15 +6,16 @@ declare global {
       message: string;
       status: number;
       error: string;
+      errorCode: string;
     }
     interface Locals {
       user?: {
-        userId: bigint;
+        userId: string;
         username: string;
         admin: boolean;
       } | null;
       player?: {
-        playerId: bigint;
+        playerId: string;
         name: string;
       } | null;
     }

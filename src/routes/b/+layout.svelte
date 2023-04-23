@@ -9,6 +9,7 @@
   import { Logout, UserAdmin } from 'carbon-icons-svelte';
   import { enhance } from '$app/forms';
   import type { LayoutData } from './$types';
+  import Notifications from '$lib/components/Notifications.svelte';
 
   export let data: LayoutData;
 </script>
@@ -27,3 +28,5 @@
 <Content>
   <slot />
 </Content>
+
+<Notifications />

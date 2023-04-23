@@ -6,6 +6,7 @@ $css--reset: true;
 $css--default-type: true;
 $css--plex: true;
 
+@import 'carbon-components/scss/globals/grid/grid';
 @import 'carbon-components/scss/globals/scss/theme';
 
 $carbon--theme: $carbon--theme--g100;
@@ -24,3 +25,6 @@ $carbon--theme: $carbon--theme--g100;
 @import 'carbon-components/scss/components/select/select';
 @import 'carbon-components/scss/components/ui-shell/ui-shell';
 @import 'carbon-components/scss/components/notification/inline-notification';
+@import 'carbon-components/scss/components/radio-button/radio-button';
+@import 'carbon-components/scss/components/checkbox/checkbox';
+@import 'carbon-components/scss/components/notification/toast-notification';

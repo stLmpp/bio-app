@@ -131,8 +131,8 @@ export function formGroup<T extends Record<string, ZodType>>(
         valueWritable.subscribe(async (newValue) => {
           (values as any)[key] = newValue;
           const validation = value.safeParse(newValue);
-          validWritable.update((valid) => {
-            const newObject = { ...valid, [key]: validation.success };
+          validWritable.update((validValue) => {
+            const newObject = { ...validValue, [key]: validation.success };
             return { ...newObject, group: getValidGroup(newObject) };
           });
           groupWritable.update((group) => ({ ...group, [key]: newValue }));

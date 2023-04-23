@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
+import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 

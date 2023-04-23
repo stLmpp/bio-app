@@ -1,15 +1,11 @@
-import type { Handle } from '@sveltejs/kit';
+import './polyfills';
+import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
+import type { HandleFetch } from '@sveltejs/kit';
 
-declare global {
-  interface BigInt {
-    toJSON(): string;
+export const handleFetch = (async ({ fetch, event, request }) => {
+  const accessToken = event.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
+  if (accessToken) {
+    request.headers.set('authorization', `Bearer ${accessToken}`);
   }
-}
-
-BigInt.prototype.toJSON = function () {
-  return this.toString();
-};
-
-export const handle = (({ event, resolve }) => {
-  return resolve(event);
-}) satisfies Handle;
+  return fetch(request);
+}) satisfies HandleFetch;

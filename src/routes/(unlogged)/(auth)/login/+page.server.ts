@@ -1,7 +1,7 @@
 import { AUTH_END_POINT } from '$env/static/private';
-import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
+import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { parseFormData } from '$lib/server/form-data';
-import { http } from '$lib/server/http';
+import { httpServer } from '$lib/server/http-server';
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
@@ -9,7 +9,7 @@ import type { Actions } from './$types';
 
 export const actions = {
   default: async ({ fetch, request, cookies }) => {
-    const [formData, formError] = await parseFormData(
+    const [formError, formData] = await parseFormData(
       zfd.formData({
         usernameOrEmail: zfd.text(
           z.union([z.string().trim().email().max(254), z.string().trim().min(3).max(50)])
@@ -21,7 +21,7 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [response, error] = await http(`${AUTH_END_POINT}/login`, {
+    const [error, response] = await httpServer(`${AUTH_END_POINT}/login`, {
       fetch,
       method: 'POST',
       schema: z.object({

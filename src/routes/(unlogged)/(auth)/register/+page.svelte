@@ -24,7 +24,7 @@
 
   const [
     { username, email, password, regionId },
-    { errors, valid, showAllErrors, constraints, group },
+    { errors, valid, showAllErrors, constraints },
   ] = formGroup(
     {
       username: z

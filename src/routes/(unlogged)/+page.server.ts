@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/server/constants';
+import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { redirect } from '@sveltejs/kit';
 
 export const load = (({ cookies }) => {
