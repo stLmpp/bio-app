@@ -5,6 +5,7 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 export const load = (async ({ fetch }) => {
+  console.log('fetching');
   const [platformsError, platforms] = await httpServer(PLATFORM_END_POINT, {
     fetch,
     schema: z.array(

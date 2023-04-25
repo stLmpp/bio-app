@@ -16,12 +16,15 @@ interface FormConstraints {
   // All
   required?: boolean;
   // String
-  maxlenght?: number;
+  maxlength?: number;
   minlength?: number;
   pattern?: string;
   // Number/Date
   max?: number;
   min?: number;
+  // Others
+  name: string;
+  id: string;
 }
 
 type FormGroupValid<T extends Record<string, ZodType>> = { [K in keyof T]: boolean } & {
@@ -101,10 +104,13 @@ export function formGroup<T extends Record<string, ZodType>>(
   for (const [key, value] of entries) {
     let index = 0;
     const jsonSchema = generateSchema(value);
-    const controlContraints: FormConstraints = {};
+    const controlContraints: FormConstraints = {
+      name: key,
+      id: key,
+    };
     if (jsonSchema.type === 'string') {
       if (typeof jsonSchema.maxLength !== 'undefined') {
-        controlContraints.maxlenght = jsonSchema.maxLength;
+        controlContraints.maxlength = jsonSchema.maxLength;
       }
       if (typeof jsonSchema.minLength !== 'undefined') {
         controlContraints.minlength = jsonSchema.minLength;

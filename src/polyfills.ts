@@ -9,3 +9,9 @@ declare module 'rxjs' {
 Subject.prototype.set = function (value) {
   this.next(value);
 };
+Subject.prototype.lift = function (operator) {
+  const result = new Subject<any>();
+  result.operator = operator;
+  result.source = this;
+  return result;
+};

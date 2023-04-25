@@ -16,6 +16,7 @@
   interface Route {
     href: string;
     text: string;
+    isActive?: (path: string) => unknown;
   }
 
   const routes: Route[] = [
@@ -26,6 +27,11 @@
     {
       href: '/a/platform',
       text: 'Platforms',
+      isActive: (path) => /^\/a\/platform(\/\d+\/edit)?$/.test(path),
+    },
+    {
+      href: '/a/platform/add',
+      text: 'Add Platform',
     },
     {
       href: '/a/game-mini-game/link',
@@ -50,7 +56,9 @@
       <SideNavLink
         text={route.text}
         href={route.href}
-        isSelected={$page.url.pathname === route.href}
+        isSelected={route.isActive
+          ? !!route.isActive($page.url.pathname)
+          : $page.url.pathname === route.href}
       />
     {/each}
   </SideNavItems>

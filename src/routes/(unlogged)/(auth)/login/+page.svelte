@@ -70,10 +70,8 @@
 >
   <div class="fields">
     <TextInput
-      id="usernameOrEmail"
       labelText="Username or e-mail"
       placeholder="Username or e-mail"
-      name="usernameOrEmail"
       autocomplete="email"
       {...constraints.usernameOrEmail}
       invalid={!!$errors.usernameOrEmail}
@@ -81,10 +79,8 @@
       bind:value={$usernameOrEmail}
     />
     <PasswordInput
-      id="password"
       labelText="Password"
       placeholder="Password"
-      name="password"
       {...constraints.password}
       bind:value={$password}
       invalid={!!$errors.password}
