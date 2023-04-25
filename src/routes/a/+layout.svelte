@@ -24,6 +24,10 @@
       text: 'Home',
     },
     {
+      href: '/a/platform',
+      text: 'Platforms',
+    },
+    {
       href: '/a/game-mini-game/link',
       text: 'Link Game -> Mini game',
     },

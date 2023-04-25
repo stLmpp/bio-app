@@ -18,7 +18,7 @@ $carbon--theme: $carbon--theme--g100;
 @import 'carbon-components/scss/globals/scss/css--helpers';
 @import 'carbon-components/scss/globals/scss/css--body';
 
-// Optionally include components that you need
+// Include only what is used
 @import 'carbon-components/scss/components/button/button';
 @import 'carbon-components/scss/components/text-input/text-input';
 @import 'carbon-components/scss/components/tile/tile';
@@ -28,3 +28,7 @@ $carbon--theme: $carbon--theme--g100;
 @import 'carbon-components/scss/components/radio-button/radio-button';
 @import 'carbon-components/scss/components/checkbox/checkbox';
 @import 'carbon-components/scss/components/notification/toast-notification';
+@import 'carbon-components/scss/components/progress-bar/progress-bar';
+@import 'carbon-components/scss/components/data-table/data-table';
+@import 'carbon-components/scss/components/overflow-menu/overflow-menu';
+@import 'carbon-components/scss/components/toolbar/toolbar';

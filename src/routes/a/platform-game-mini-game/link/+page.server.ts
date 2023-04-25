@@ -1,13 +1,13 @@
-import { httpServer } from '$lib/server/http-server';
-import type { PageServerLoad } from './$types';
 import {
   GAME_MINI_GAME_END_POINT,
   PLATFORM_END_POINT,
   PLATFORM_GAME_MINI_GAME_END_POINT,
 } from '$env/static/private';
-import { z } from 'zod';
-import { error } from '@sveltejs/kit';
 import { arrayUniqBy } from '$lib/array-uniq-by';
+import { httpServer } from '$lib/server/http-server';
+import { error } from '@sveltejs/kit';
+import { z } from 'zod';
+import type { PageServerLoad } from './$types';
 
 export const load = (async ({ fetch }) => {
   const [platformsResponse, gameMiniGamesResponse, platformGameMiniGamesResponse] =

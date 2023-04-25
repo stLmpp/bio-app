@@ -35,6 +35,7 @@
     top: 0;
     left: 0;
     right: 0;
+    z-index: 8001; // Greater than header
     :global(.bx--progress-bar__label) {
       margin-bottom: 0;
     }
