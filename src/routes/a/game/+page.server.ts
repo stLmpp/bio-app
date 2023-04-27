@@ -1,24 +1,24 @@
-import { PLATFORM_END_POINT } from '$env/static/private';
+import { GAME_END_POINT } from '$env/static/private';
 import { httpServer } from '$lib/server/http-server';
+import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
-import { error } from '@sveltejs/kit';
 
 export const load = (async ({ fetch }) => {
-  const [platformsError, platforms] = await httpServer(PLATFORM_END_POINT, {
+  const [gamesError, games] = await httpServer(GAME_END_POINT, {
     fetch,
     schema: z.array(
       z.object({
-        platformId: z.string(),
+        gameId: z.string(),
         name: z.string(),
         shortName: z.string(),
       })
     ),
   });
-  if (platformsError) {
-    throw error(platformsError.status, platformsError);
+  if (gamesError) {
+    throw error(gamesError.status, gamesError);
   }
   return {
-    platforms,
+    games,
   };
 }) satisfies PageServerLoad;

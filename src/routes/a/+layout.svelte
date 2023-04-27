@@ -34,6 +34,15 @@
       text: 'Add Platform',
     },
     {
+      href: '/a/game',
+      text: 'Games',
+      isActive: (path) => /^\/a\/game(\/d+\/edit)?$/.test(path),
+    },
+    {
+      href: '/a/game/add',
+      text: 'Add Game',
+    },
+    {
       href: '/a/game-mini-game/link',
       text: 'Link Game -> Mini game',
     },

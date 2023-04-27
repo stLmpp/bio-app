@@ -23,7 +23,7 @@
   );
 </script>
 
-<h1>Add new Platform</h1>
+<h1>Add new Game</h1>
 
 <form
   method="POST"
@@ -64,7 +64,7 @@
   {/if}
   <div class="form-actions">
     <Button type="submit" disabled={loading}>Submit</Button>
-    <Button href="/a/platform" kind="ghost">Platform list</Button>
+    <Button href="/a/game" kind="ghost">Game list</Button>
   </div>
 </form>
 
