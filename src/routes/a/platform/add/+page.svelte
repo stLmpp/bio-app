@@ -4,6 +4,7 @@
   import { z } from 'zod';
   import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData } from './$types';
+  import Seo from '$lib/components/Seo.svelte';
 
   export let form: ActionData;
 
@@ -22,6 +23,8 @@
     }
   );
 </script>
+
+<Seo title="Add new Platform" description="Add a new Platform" />
 
 <h1>Add new Platform</h1>
 

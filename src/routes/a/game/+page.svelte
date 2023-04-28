@@ -3,6 +3,7 @@
   import { httpClient } from '$lib/http-client';
   import { z } from 'zod';
   import type { PageData } from './$types';
+  import Seo from '$lib/components/Seo.svelte';
 
   export let data: PageData;
   async function deleteGame(gameId: string) {
@@ -21,6 +22,8 @@
     }
   }
 </script>
+
+<Seo title="Game list" description="List with all Games" />
 
 <AdminMasterDataList
   data={data.games}

@@ -3,6 +3,7 @@
   import { httpClient } from '$lib/http-client';
   import { z } from 'zod';
   import type { PageData } from './$types';
+  import Seo from '$lib/components/Seo.svelte';
 
   export let data: PageData;
 
@@ -26,6 +27,8 @@
     }
   }
 </script>
+
+<Seo title="Platform list" description="List with all Platforms registered" />
 
 <AdminMasterDataList
   data={data.platforms}
