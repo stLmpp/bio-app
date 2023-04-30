@@ -7,6 +7,7 @@ import {
   type Unsubscriber,
   type Updater,
   type Writable,
+  derived,
 } from 'svelte/store';
 import type { Simplify } from 'type-fest';
 import type { z, ZodType } from 'zod';
@@ -51,6 +52,7 @@ type FormGroup<T extends Record<string, ZodType>> = Simplify<
       valid: Readable<FormGroupValid<T>>;
       errors: Readable<FormGroupErrors<T>>;
       constraints: Readonly<FormGroupConstraints<T>>;
+      groupDirty: Readable<Partial<FormGroupValue<T>>>;
       showAllErrors: () => void;
       set: (value: FormGroupValue<T>) => void;
       update: (updater: Updater<FormGroupValue<T>>) => void;
@@ -194,6 +196,15 @@ export function formGroup<T extends Record<string, ZodType>>(
           controls[key].set(newValue[key]);
         }
       },
+      groupDirty: derived(groupWritable, (group) => {
+        const partial: Partial<FormGroupValue<T>> = {};
+        for (const [key, value] of Object.entries(group)) {
+          if (value !== initial[key]) {
+            (partial as any)[key] = value;
+          }
+        }
+        return partial;
+      }),
     },
   ];
 }
