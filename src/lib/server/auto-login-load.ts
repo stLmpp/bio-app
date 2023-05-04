@@ -5,6 +5,8 @@ import { AUTH_AUTO_LOGIN_END_POINT } from '$env/static/private';
 import { AutoLoginSchema } from '$lib/server/auto-login.schema';
 import { type Cookies, redirect } from '@sveltejs/kit';
 
+// TODO move this to hooks, doesn't work very well on load functions
+
 export function autoLoginLoad(admin = false) {
   return async ({ cookies, locals }: { cookies: Cookies; locals: App.Locals }) => {
     const accessToken = cookies.get(ACCESS_TOKEN_COOKIE_KEY);

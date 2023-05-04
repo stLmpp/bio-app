@@ -28,6 +28,7 @@ export function _internalHttpFactory(browser: true): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+    query?: Record<string, unknown>;
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
@@ -37,6 +38,7 @@ export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+    query?: Record<string, unknown>;
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
@@ -46,6 +48,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+    query?: Record<string, unknown>;
   }
 ) => Promise<HttpResponse<T>> {
   return async function http<T extends ZodSchema>(
@@ -54,12 +57,14 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
       fetch: _fetch,
       schema,
       body,
+      query,
       ...options
     }: Omit<RequestInit, 'body'> & {
       fetch?: typeof fetch;
       schema: T;
       body?: unknown;
       method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+      query?: Record<string, unknown>;
     }
   ): Promise<HttpResponse<T>> {
     if (browser) {
@@ -73,7 +78,13 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     if (typeof body !== 'undefined') {
       requestOptions.body = JSON.stringify(body);
     }
-    const response = await _fetch(url, { ...requestOptions, headers });
+    const newUrl = new URL(url);
+    if (query) {
+      for (const [key, value] of Object.entries(query)) {
+        newUrl.searchParams.set(key, String(value));
+      }
+    }
+    const response = await _fetch(newUrl, { ...requestOptions, headers });
     const responseJson = await response
       .json()
       .catch(() => response.text())
