@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { DataTable, Pagination } from 'carbon-components-svelte';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import { DataTable, Link, Pagination } from 'carbon-components-svelte';
+  import { plural, type PluralMap } from '$lib/i18n';
+  import { Trophy } from 'carbon-icons-svelte';
 
   export let data;
 
@@ -7,30 +11,113 @@
     ...player,
     id: player.playerId,
   }));
-
   $: stages = data.leaderboard.stages;
+
+  const numberFormatter = new Intl.NumberFormat('pt-BR');
+  const formatter = numberFormatter.format.bind(numberFormatter);
+
+  function getScore(
+    key: string,
+    scores: (typeof data.leaderboard.players)[number]['scores']
+  ) {
+    const platformGameMiniGameModeStageId = key.split(':').pop()!;
+    const index = data.leaderboard.stages.findIndex(
+      (stage) => stage.platformGameMiniGameModeStageId === platformGameMiniGameModeStageId
+    );
+    return scores[index];
+  }
+
+  $: title = `[${data.leaderboard.gameShortName} ${data.leaderboard.platformShortName}] ${data.leaderboard.miniGameName} - ${data.leaderboard.modeName} Leaderboards`;
+
+  const partnerPluralMap: PluralMap = {
+    '=0': null,
+    '=1': 'Partner',
+    other: 'Partners',
+  };
 </script>
 
-<a href="/b/score/leaderboard/2?p=1">Page 1</a>
-<a href="/b/score/leaderboard/2?p=2">Page 2</a>
-
 <DataTable
+  {title}
   headers={[
     { key: 'position', value: '#' },
     { key: 'playerName', value: 'Player' },
-    ...stages.map((stage, index) => ({
-      key: `scores[${index}].score`,
+    ...stages.map((stage) => ({
+      key: `score:${stage.platformGameMiniGameModeStageId}`,
       value: stage.stageName,
-      display: (item) => new Intl.NumberFormat('pt-BR').format(item),
     })),
     {
       key: 'total',
       value: 'Total',
-      display: (item) => new Intl.NumberFormat('pt-BR').format(item),
+      display: formatter,
     },
   ]}
   {rows}
-  pageSize={10}
-  page={1}
+>
+  <svelte:fragment slot="cell" let:cell let:row>
+    {#if cell.key === 'position'}
+      <span class="position-{row.position}">{cell.value}</span>
+    {:else if cell.key.startsWith('score')}
+      {@const score = getScore(cell.key, row.scores)}
+      {#if score}
+        <div class="score">
+          <Link
+            href="/b/score/{score.scoreId}"
+            title={score.partners.length
+              ? `${plural(score.partners.length, partnerPluralMap)}: ${score.partners
+                  .map((partner) => partner.playerName)
+                  .join(', ')}`
+              : null}
+          >
+            {formatter(score.score)}
+          </Link>
+          {#if score.worldRecordAt}
+            <Trophy
+              title="World Record at {new Date(score.worldRecordAt).toLocaleDateString()}"
+            />
+          {:else}
+            &nbsp;
+          {/if}
+        </div>
+      {:else}
+        0
+      {/if}
+    {:else if cell.key === 'playerName'}
+      <Link href="/b/player/{row.playerId}">{cell.value}</Link>
+    {:else}
+      {cell.display ? cell.display(cell.value) : cell.value}
+    {/if}
+  </svelte:fragment>
+</DataTable>
+<Pagination
+  pageSize={data.leaderboard.metadata.itemsPerPage}
+  page={data.leaderboard.metadata.page}
+  totalItems={data.leaderboard.metadata.totalItems}
+  on:change={(event) => {
+    if (event.detail.page) {
+      const url = new URL($page.url);
+      url.searchParams.set('p', String(event.detail.page));
+      goto(url);
+    }
+  }}
+  pageSizeInputDisabled
 />
-<Pagination pageSize={10} page={1} totalItems={rows.length} pageSizeInputDisabled />
+
+<style lang="scss">
+  .position-1 {
+    color: goldenrod;
+  }
+
+  .position-2 {
+    color: silver;
+  }
+
+  .position-3 {
+    color: rgb(205, 127, 50);
+  }
+
+  .score {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+</style>

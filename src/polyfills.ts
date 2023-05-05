@@ -1,4 +1,5 @@
 import { Subject } from 'rxjs';
+import { ZodType } from 'zod';
 
 declare module 'rxjs' {
   interface Subject<T> {
@@ -14,4 +15,15 @@ Subject.prototype.lift = function (operator) {
   result.operator = operator;
   result.source = this;
   return result;
+};
+
+declare module 'zod' {
+  interface ZodType<Output = any> {
+    parseOrFallback(data: unknown, fallback: Output): Output;
+  }
+}
+
+ZodType.prototype.parseOrFallback = function (data, fallback) {
+  const result = this.safeParse(data);
+  return result.success ? result.data : fallback;
 };
