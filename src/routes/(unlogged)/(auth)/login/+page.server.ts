@@ -3,12 +3,13 @@ import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { parseFormData } from '$lib/server/form-data';
 import { httpServer } from '$lib/server/http-server';
 import { fail, redirect } from '@sveltejs/kit';
+import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 import type { Actions } from './$types';
 
 export const actions = {
-  default: async ({ fetch, request, cookies }) => {
+  default: async ({ fetch, request, cookies, url }) => {
     const [formError, formData] = await parseFormData(
       zfd.formData({
         usernameOrEmail: zfd.text(
@@ -34,7 +35,8 @@ export const actions = {
     }
     const { accessToken } = response;
     cookies.set(ACCESS_TOKEN_COOKIE_KEY, accessToken);
-    throw redirect(301, '/a');
+    const redirectTo = url.searchParams.get('redirectTo') ?? '/a';
+    throw redirect(StatusCodes.MOVED_PERMANENTLY, redirectTo);
   },
 } satisfies Actions;
 

@@ -4,6 +4,7 @@
   import { DataTable, Link, Pagination } from 'carbon-components-svelte';
   import { plural, type PluralMap } from '$lib/i18n';
   import { Trophy } from 'carbon-icons-svelte';
+  import Seo from '$lib/components/Seo.svelte';
 
   export let data;
 
@@ -28,13 +29,20 @@
   }
 
   $: title = `[${data.leaderboard.gameShortName} ${data.leaderboard.platformShortName}] ${data.leaderboard.miniGameName} - ${data.leaderboard.modeName} Leaderboards`;
+  $: metaDescription = `Leaderboard for ${data.leaderboard.gameName} ${data.leaderboard.miniGameName} ${data.leaderboard.modeName} on ${data.leaderboard.platformName}`;
 
   const partnerPluralMap: PluralMap = {
     '=0': null,
     '=1': 'Partner',
     other: 'Partners',
   };
+
+  function isScoreCell(key: string): boolean {
+    return key.startsWith('score');
+  }
 </script>
+
+<Seo {title} description={metaDescription} />
 
 <DataTable
   {title}
@@ -60,6 +68,13 @@
       {@const score = getScore(cell.key, row.scores)}
       {#if score}
         <div class="score">
+          {#if score.worldRecordAt}
+            <Trophy
+              title="World Record at {new Date(score.worldRecordAt).toLocaleDateString()}"
+            />
+          {:else}
+            &nbsp;
+          {/if}
           <Link
             href="/b/score/{score.scoreId}"
             title={score.partners.length
@@ -70,21 +85,26 @@
           >
             {formatter(score.score)}
           </Link>
-          {#if score.worldRecordAt}
-            <Trophy
-              title="World Record at {new Date(score.worldRecordAt).toLocaleDateString()}"
-            />
-          {:else}
-            &nbsp;
-          {/if}
         </div>
       {:else}
-        0
+        <div class="score">
+          &nbsp;
+          <span>0</span>
+        </div>
       {/if}
     {:else if cell.key === 'playerName'}
       <Link href="/b/player/{row.playerId}">{cell.value}</Link>
     {:else}
       {cell.display ? cell.display(cell.value) : cell.value}
+    {/if}
+  </svelte:fragment>
+  <svelte:fragment slot="cell-header" let:header>
+    {#if isScoreCell(header.key)}
+      <div class="score-header">
+        {header.value}
+      </div>
+    {:else}
+      {header.value}
     {/if}
   </svelte:fragment>
 </DataTable>
@@ -115,9 +135,13 @@
     color: rgb(205, 127, 50);
   }
 
+  .score-header {
+    text-align: end;
+  }
+
   .score {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
   }
 </style>
