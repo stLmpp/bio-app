@@ -63,7 +63,9 @@
 >
   <svelte:fragment slot="cell" let:cell let:row>
     {#if cell.key === 'position'}
-      <span class="position-{row.position}">{cell.value}</span>
+      <div class="position position-{row.position}">
+        {cell.value}
+      </div>
     {:else if cell.key.startsWith('score')}
       {@const score = getScore(cell.key, row.scores)}
       {#if score}
@@ -123,16 +125,28 @@
 />
 
 <style lang="scss">
+  .position {
+    border: 2.5px solid;
+    border-radius: 50%;
+    padding: 0.25rem;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: transparent;
+  }
+
   .position-1 {
-    color: goldenrod;
+    border-color: goldenrod;
   }
 
   .position-2 {
-    color: silver;
+    border-color: silver;
   }
 
   .position-3 {
-    color: rgb(205, 127, 50);
+    border-color: rgb(205, 127, 50);
   }
 
   .score-header {
