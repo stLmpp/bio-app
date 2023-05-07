@@ -17,6 +17,7 @@
     href: string;
     text: string;
     isActive?: (path: string) => unknown;
+    tooltip?: string;
   }
 
   const routes: Route[] = [
@@ -36,11 +37,20 @@
     {
       href: '/a/game',
       text: 'Games',
-      isActive: (path) => /^\/a\/game(\/d+\/edit)?$/.test(path),
+      isActive: (path) => /^\/a\/game(\/\d+\/edit)?$/.test(path),
     },
     {
       href: '/a/game/add',
       text: 'Add Game',
+    },
+    {
+      href: '/a/mode',
+      text: 'Modes',
+      isActive: (path) => /^\/a\/mode(\/\d+\/edit)?$/.test(path),
+    },
+    {
+      href: '/a/mode/add',
+      text: 'Add Mode',
     },
     {
       href: '/a/game-mini-game/link',
@@ -49,6 +59,11 @@
     {
       href: '/a/platform-game-mini-game/link',
       text: 'Link Platform -> Game mini game',
+    },
+    {
+      href: '/a/platform-game-mini-game-mode/link',
+      text: 'Link PGMG -> Mode',
+      tooltip: 'Link Platform game mini game -> Mode',
     },
   ];
 </script>
@@ -63,6 +78,7 @@
   <SideNavItems>
     {#each routes as route (route.href)}
       <SideNavLink
+        title={route.tooltip}
         text={route.text}
         href={route.href}
         isSelected={route.isActive

@@ -1,5 +1,6 @@
 import { z, ZodSchema, ZodVoid } from 'zod';
 import { addErrorNotification } from './stores/error-notification';
+import { Exceptions } from './exceptions';
 
 export const HttpErrorSchema = z.object({
   status: z.number(),
@@ -15,12 +16,18 @@ export type HttpResponse<T extends ZodSchema> =
   | HttpResponseError
   | HttpResponseSuccess<T>;
 
-export const INTERNAL_SERVER_ERROR: HttpError = {
-  status: 500,
-  message: 'Internal server error',
-  error: 'Internal server error',
-  errorCode: 'FRONT-9999',
-};
+function getNewUrl(url: string | URL, browser: boolean): URL {
+  if (typeof url !== 'string') {
+    return url;
+  }
+  if (/^https?/.test(url)) {
+    return new URL(url);
+  }
+  if (!browser) {
+    throw new Error(`Could not generate URL for ${url}`);
+  }
+  return new URL(url, window.location.origin);
+}
 
 export function _internalHttpFactory(browser: true): <T extends ZodSchema>(
   url: string | URL,
@@ -68,7 +75,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     }
   ): Promise<HttpResponse<T>> {
     if (browser) {
-      _fetch = fetch;
+      _fetch = window.fetch;
     } else if (!_fetch) {
       throw new Error('Required fetch parameter not provided in the server');
     }
@@ -78,7 +85,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     if (typeof body !== 'undefined') {
       requestOptions.body = JSON.stringify(body);
     }
-    const newUrl = new URL(url);
+    const newUrl = getNewUrl(url, browser);
     if (query) {
       for (const [key, value] of Object.entries(query)) {
         newUrl.searchParams.set(key, String(value));
@@ -98,13 +105,9 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
           '\nError:',
           responseJson
         );
-        addErrorNotification({
-          error: 'Failed to validate an error coming from the server',
-          errorCode: 'FRONT-9999',
-          message: 'Failed to validate an error coming from the server',
-          status: 500,
-        });
-        return [INTERNAL_SERVER_ERROR, null];
+        const error = Exceptions.FailedToValidateErrorResponseFromServer();
+        addErrorNotification(error);
+        return [error, null];
       }
       addErrorNotification(errorValidation.data);
       return [errorValidation.data, null];
@@ -120,13 +123,9 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
         '\nResponse:',
         responseJson
       );
-      addErrorNotification({
-        error: 'Failed to parse the response from the server',
-        errorCode: 'FRONT-9999', // TODO need to use an enum here too
-        message: 'Failed to parse the response from the server',
-        status: 500, // TODO use enum
-      });
-      return [INTERNAL_SERVER_ERROR, null];
+      const error = Exceptions.FailedToValidateResponseFromServer();
+      addErrorNotification(error);
+      return [error, null];
     }
     return [null, validation.data];
   };
