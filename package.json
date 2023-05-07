@@ -10,7 +10,8 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint ./src",
-    "format": "prettier ./src --write ."
+    "format": "prettier ./src --write .",
+    "compile-css": "sass --load-path=node_modules --no-source-map src/global.scss static/global.css"
   },
   "devDependencies": {
     "@anatine/zod-openapi": "^1.12.1",

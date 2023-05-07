@@ -9,7 +9,9 @@ export async function parseBody<T extends ZodType>(
 ): Promise<HttpResponse<T>> {
   const jsonParsed = await schema.safeParseAsync(body);
   if (!jsonParsed.success) {
-    const error = Exceptions.InvalidBody(formatZodErrorString(jsonParsed.error));
+    const error = Exceptions.InvalidBody({
+      error: formatZodErrorString(jsonParsed.error),
+    });
     return [error, null];
   }
   return [null, jsonParsed.data];

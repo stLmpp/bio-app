@@ -6,7 +6,7 @@
     HeaderActionLink,
     HeaderUtilities,
   } from 'carbon-components-svelte';
-  import { Home, Logout, UserAdmin } from 'carbon-icons-svelte';
+  import { Home, Logout, UserAdmin, Add } from 'carbon-icons-svelte';
   import { enhance } from '$app/forms';
   import type { LayoutData } from './$types';
   import Notifications from '$lib/components/Notifications.svelte';
@@ -20,6 +20,7 @@
     {#if $page.url.pathname !== '/b'}
       <HeaderActionLink href="/b" icon={Home} />
     {/if}
+    <HeaderActionLink href="/b/score/submit" icon={Add} />
     {#if data.user.admin}
       <HeaderActionLink href="/a" icon={UserAdmin} />
     {/if}

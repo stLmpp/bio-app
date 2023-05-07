@@ -1,0 +1,34 @@
+@use 'carbon-components/scss/globals/scss/vars' as var;
+
+body {
+  height: 100vh;
+  margin: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+:root {
+  --mobile-width: 600px;
+}
+
+a {
+  &.reset {
+    all: unset;
+  }
+}
+
+.radio-tile
+  > input[type='radio'].bx--tile-input:checked
+  + label.bx--tile.bx--tile--selectable {
+  @extend .bx--tile--is-selected;
+}
+
+.form-error {
+  color: var.$red-40;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.bx--structured-list.no-margin-bottom {
+  margin-bottom: 0;
+}

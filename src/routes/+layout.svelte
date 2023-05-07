@@ -5,7 +5,6 @@
   import { ProgressBar } from 'carbon-components-svelte';
   import { combineLatest, debounceTime, map } from 'rxjs';
   import { slide } from 'svelte/transition';
-  import './global.scss';
 
   beforeNavigate(() => {
     setIsNavigating(true);

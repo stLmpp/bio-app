@@ -9,7 +9,9 @@ export async function parseFormData<T extends ZodSchema>(
 ): Promise<HttpResponse<T>> {
   const validation = await schema.safeParseAsync(formData);
   if (!validation.success) {
-    const error = Exceptions.InvalidFormData(formatZodErrorString(validation.error));
+    const error = Exceptions.InvalidFormData({
+      error: formatZodErrorString(validation.error),
+    });
     return [error, null];
   }
   return [null, validation.data];

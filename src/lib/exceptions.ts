@@ -1,16 +1,20 @@
 import { StatusCodes } from 'http-status-codes';
 import type { HttpError } from './http-shared';
 
+type Exception =
+  | (() => HttpError)
+  | ((args?: { error?: string; message?: string }) => HttpError);
+
 export const Exceptions = {
-  InvalidFormData: (error) => ({
+  InvalidFormData: (args) => ({
     errorCode: 'FRONT-0001',
-    error,
+    error: args?.error ?? 'Invalid form data input',
     message: 'Invalid form data input',
     status: StatusCodes.BAD_REQUEST,
   }),
-  InvalidBody: (error) => ({
+  InvalidBody: (args) => ({
     errorCode: 'FRONT-0002',
-    error,
+    error: args?.error ?? 'Invalid body input',
     message: 'Invalid body input',
     status: StatusCodes.BAD_REQUEST,
   }),
@@ -26,4 +30,10 @@ export const Exceptions = {
     message: 'Failed to validate the response from the server',
     status: StatusCodes.INTERNAL_SERVER_ERROR,
   }),
-} satisfies Record<string, (() => HttpError) | ((error: string) => HttpError)>;
+  FormActionCustomBadRequest: (args) => ({
+    errorCode: 'FRONT-0005',
+    error: args?.error ?? 'Form action custom bad request error',
+    message: args?.message ?? 'Form action custom bad request error',
+    status: StatusCodes.BAD_REQUEST,
+  }),
+} satisfies Record<string, Exception>;
