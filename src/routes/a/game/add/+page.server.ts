@@ -1,6 +1,5 @@
-import { GAME_END_POINT } from '$env/static/private';
 import { parseFormData } from '$lib/server/form-data';
-import { httpServer } from '$lib/server/http-server';
+import { GameService } from '$lib/server/services/game.service';
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
@@ -18,16 +17,8 @@ export const actions = {
     if (formDataError) {
       return fail(formDataError.status, { error: formDataError });
     }
-    const [responseError] = await httpServer(GAME_END_POINT, {
-      fetch,
-      schema: z.object({
-        gameId: z.string(),
-        name: z.string(),
-        shortName: z.string(),
-      }),
-      method: 'POST',
-      body: formData,
-    });
+    const gameService = GameService.create(fetch);
+    const [responseError] = await gameService.post(formData);
     if (responseError) {
       return fail(responseError.status, { error: responseError });
     }

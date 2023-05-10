@@ -1,7 +1,6 @@
-import { REGION_END_POINT } from '$env/static/private';
 import { parseFormData } from '$lib/server/form-data';
-import { httpServer } from '$lib/server/http-server';
 import { AuthService } from '$lib/server/services/auth.service';
+import { RegionService } from '$lib/server/services/region.service.js';
 import { error, fail } from '@sveltejs/kit';
 import { redirect } from 'sveltekit-flash-message/server';
 import { z } from 'zod';
@@ -34,17 +33,8 @@ export const actions = {
 };
 
 export async function load({ fetch, setHeaders }) {
-  const [regionsError, regions] = await httpServer(`${REGION_END_POINT}`, {
-    method: 'GET',
-    fetch,
-    schema: z.array(
-      z.object({
-        regionId: z.number(),
-        name: z.string(),
-        shortName: z.string(),
-      })
-    ),
-  });
+  const regionService = RegionService.create(fetch);
+  const [regionsError, regions] = await regionService.get();
   if (regionsError) {
     throw error(regionsError.status, regionsError);
   }

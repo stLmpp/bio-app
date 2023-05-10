@@ -76,7 +76,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
   ): Promise<HttpResponse<T>> {
     if (browser) {
       _fetch = window.fetch;
-    } else if (!_fetch) {
+    } else if (!_fetch || _fetch === globalThis.fetch) {
       throw new Error('Required fetch parameter not provided in the server');
     }
     const requestOptions: RequestInit = { ...options };

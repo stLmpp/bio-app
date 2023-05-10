@@ -1,44 +1,17 @@
-import {
-  GAME_END_POINT,
-  GAME_MINI_GAME_END_POINT,
-  MINI_GAME_END_POINT,
-} from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
+import { GameMiniGameService } from '$lib/server/services/game-mini-game.service';
+import { GameService } from '$lib/server/services/game.service';
+import { MiniGameService } from '$lib/server/services/mini-game.service';
 import { error } from '@sveltejs/kit';
-import { z } from 'zod';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ fetch }) => {
+  const gameService = GameService.create(fetch);
+  const miniGameService = MiniGameService.create(fetch);
+  const gameMiniGameService = GameMiniGameService.create(fetch);
   const [gamesResponse, miniGamesResponse, gameMiniGamesResponse] = await Promise.all([
-    httpServer(GAME_END_POINT, {
-      fetch,
-      schema: z.array(
-        z.object({
-          gameId: z.string(),
-          name: z.string(),
-          shortName: z.string(),
-        })
-      ),
-    }),
-    httpServer(MINI_GAME_END_POINT, {
-      fetch,
-      schema: z.array(
-        z.object({
-          miniGameId: z.string(),
-          name: z.string(),
-        })
-      ),
-    }),
-    httpServer(GAME_MINI_GAME_END_POINT, {
-      fetch,
-      schema: z.array(
-        z.object({
-          gameMiniGameId: z.string(),
-          gameId: z.string(),
-          miniGameId: z.string(),
-        })
-      ),
-    }),
+    gameService.get(),
+    miniGameService.get(),
+    gameMiniGameService.get(),
   ]);
 
   const [gamesError, games] = gamesResponse;

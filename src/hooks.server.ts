@@ -41,7 +41,7 @@ export async function handle({ event, resolve }) {
     event.locals.user = null;
     return loginResponse;
   }
-  const authService = AuthService.create(fetch);
+  const authService = AuthService.create(event.fetch);
   const [responseError, response] = await authService.autoLogin(accessToken);
   if (responseError) {
     event.cookies.delete(ACCESS_TOKEN_COOKIE_KEY);

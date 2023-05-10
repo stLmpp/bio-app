@@ -1,21 +1,13 @@
-import { GAME_END_POINT } from '$env/static/private';
 import { arrayUniqBy } from '$lib/array-uniq-by.js';
-import { httpServer } from '$lib/server/http-server.js';
 import { redirect } from '@sveltejs/kit';
 import { error } from 'console';
 import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
+import { GameService } from '$lib/server/services/game.service.js';
 
-export async function load({ parent, params }) {
+export async function load({ parent, params, fetch }) {
   const { platformGameMiniGames } = await parent();
-
-  const [gameError, game] = await httpServer(`${GAME_END_POINT}/${params.gameId}`, {
-    fetch,
-    schema: z.object({
-      gameId: z.string(),
-      name: z.string(),
-    }),
-  });
+  const gameService = GameService.create(fetch);
+  const [gameError, game] = await gameService.getOne(params.gameId);
 
   if (gameError) {
     if (gameError.status === StatusCodes.NOT_FOUND) {

@@ -1,15 +1,10 @@
-import { GAME_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
 import { error, json } from '@sveltejs/kit';
-import { z } from 'zod';
+import { GameService } from '$lib/server/services/game.service';
 import type { RequestHandler } from './$types';
 
 export const DELETE = (async ({ fetch, params }) => {
-  const [responseError] = await httpServer(`${GAME_END_POINT}/${params.gameId}`, {
-    fetch,
-    schema: z.void(),
-    method: 'DELETE',
-  });
+  const gameService = GameService.create(fetch);
+  const [responseError] = await gameService.delete(params.gameId);
   if (responseError) {
     throw error(responseError.status, responseError);
   }

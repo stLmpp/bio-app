@@ -1,20 +1,13 @@
-import { GAME_END_POINT } from '$env/static/private';
 import { parseFormData } from '$lib/server/form-data';
-import { httpServer } from '$lib/server/http-server';
+import { GameService } from '$lib/server/services/game.service';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
-import type { Actions, PageServerLoad } from './$types';
 import { zfd } from 'zod-form-data';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load = (async ({ fetch, params }) => {
-  const [responseError, game] = await httpServer(`${GAME_END_POINT}/${params.gameId}`, {
-    fetch,
-    schema: z.object({
-      gameId: z.string(),
-      name: z.string(),
-      shortName: z.string(),
-    }),
-  });
+  const gameService = GameService.create(fetch);
+  const [responseError, game] = await gameService.getOne(params.gameId);
   if (responseError) {
     throw error(responseError.status, responseError);
   }
@@ -35,16 +28,8 @@ export const actions = {
     if (formDataError) {
       return fail(formDataError.status, { error: formDataError });
     }
-    const [responseError] = await httpServer(`${GAME_END_POINT}/${params.gameId}`, {
-      method: 'PATCH',
-      fetch,
-      schema: z.object({
-        gameId: z.string(),
-        name: z.string(),
-        shortName: z.string(),
-      }),
-      body: formData,
-    });
+    const gameService = GameService.create(fetch);
+    const [responseError] = await gameService.patch(params.gameId, formData);
     if (responseError) {
       return fail(responseError.status, { error: responseError });
     }

@@ -1,9 +1,7 @@
-import {
-  GAME_MINI_GAME_END_POINT,
-  PLATFORM_GAME_MINI_GAME_END_POINT,
-} from '$env/static/private';
+import { PLATFORM_GAME_MINI_GAME_END_POINT } from '$env/static/private';
 import { arrayUniqBy } from '$lib/array-uniq-by';
 import { httpServer } from '$lib/server/http-server';
+import { GameMiniGameService } from '$lib/server/services/game-mini-game.service';
 import { PlatformService } from '$lib/server/services/platform.service';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
@@ -11,21 +9,11 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ fetch }) => {
   const platformService = PlatformService.create(fetch);
+  const gameMiniGameService = GameMiniGameService.create(fetch);
   const [platformsResponse, gameMiniGamesResponse, platformGameMiniGamesResponse] =
     await Promise.all([
       platformService.get(),
-      httpServer(GAME_MINI_GAME_END_POINT, {
-        fetch,
-        schema: z.array(
-          z.object({
-            gameMiniGameId: z.string(),
-            gameId: z.string(),
-            gameName: z.string(),
-            miniGameId: z.string(),
-            miniGameName: z.string(),
-          })
-        ),
-      }),
+      gameMiniGameService.get(),
       httpServer(PLATFORM_GAME_MINI_GAME_END_POINT, {
         fetch,
         schema: z.array(

@@ -1,6 +1,5 @@
-import { GAME_MINI_GAME_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
 import { parseBody } from '$lib/server/parse-request';
+import { GameMiniGameService } from '$lib/server/services/game-mini-game.service';
 import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { RequestHandler } from './$types';
@@ -16,19 +15,8 @@ export const POST = (async ({ fetch, request }) => {
   if (errorBody) {
     throw error(errorBody.status, errorBody);
   }
-  const [errorResponse, response] = await httpServer(GAME_MINI_GAME_END_POINT, {
-    method: 'POST',
-    fetch,
-    schema: z.object({
-      gameMiniGameId: z.string(),
-      gameId: z.string(),
-      miniGameId: z.string(),
-    }),
-    body: {
-      gameId: body.gameId,
-      miniGameId: body.miniGameId,
-    },
-  });
+  const gameMiniGameService = GameMiniGameService.create(fetch);
+  const [errorResponse, response] = await gameMiniGameService.post(body);
   if (errorResponse) {
     throw error(errorResponse.status, errorResponse);
   }
