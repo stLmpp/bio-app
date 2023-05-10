@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 public
 .idea
 ui-debug.log
+static/global.css
