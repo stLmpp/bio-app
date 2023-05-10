@@ -1,15 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { enhance } from '$app/forms';
-  import {
-    Button,
-    RadioTile,
-    StructuredList,
-    StructuredListBody,
-    StructuredListCell,
-    StructuredListRow,
-    TileGroup,
-  } from 'carbon-components-svelte';
+  import { Button, RadioTile, TileGroup } from 'carbon-components-svelte';
   import { ChevronLeft, ChevronRight } from 'carbon-icons-svelte';
 
   export let data;
@@ -31,26 +23,7 @@
   }
 </script>
 
-<h2>Parameters selected</h2>
-
-<StructuredList condensed class="no-margin-bottom">
-  <StructuredListBody>
-    <StructuredListRow>
-      <StructuredListCell>Platform</StructuredListCell>
-      <StructuredListCell>{data.platform.name}</StructuredListCell>
-    </StructuredListRow>
-    <StructuredListRow>
-      <StructuredListCell>Game</StructuredListCell>
-      <StructuredListCell>{data.game.name}</StructuredListCell>
-    </StructuredListRow>
-    <StructuredListRow>
-      <StructuredListCell>Mini game</StructuredListCell>
-      <StructuredListCell>{data.platformGameMiniGame.miniGameName}</StructuredListCell>
-    </StructuredListRow>
-  </StructuredListBody>
-</StructuredList>
-
-<h3>Select the mode</h3>
+<h2>Select the mode</h2>
 
 <form method="POST" use:enhance>
   <TileGroup bind:selected={platformGameMiniGameModeIdSelected}>
@@ -84,14 +57,3 @@
     Next
   </Button>
 </form>
-
-<style lang="scss">
-  h2 {
-    margin-bottom: 1rem;
-  }
-
-  h3 {
-    margin-bottom: 2rem;
-    margin-top: 1rem;
-  }
-</style>

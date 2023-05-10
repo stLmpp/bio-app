@@ -1,20 +1,11 @@
-import { PLATFORM_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server.js';
+import { Exceptions } from '$lib/exceptions.js';
+import { PlatformService } from '$lib/server/services/platform.service.js';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { Exceptions } from '$lib/exceptions.js';
 
 export async function load({ fetch }) {
-  const [platformsError, platforms] = await httpServer(PLATFORM_END_POINT, {
-    fetch,
-    schema: z.array(
-      z.object({
-        platformId: z.string(),
-        name: z.string(),
-      })
-    ),
-  });
+  const platformService = PlatformService.create(fetch);
+  const [platformsError, platforms] = await platformService.get();
 
   if (platformsError) {
     throw error(platformsError.status, platformsError);

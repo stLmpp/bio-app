@@ -1,11 +1,11 @@
-import { AUTH_END_POINT, REGION_END_POINT } from '$env/static/private';
+import { REGION_END_POINT } from '$env/static/private';
+import { parseFormData } from '$lib/server/form-data';
+import { httpServer } from '$lib/server/http-server';
+import { AuthService } from '$lib/server/services/auth.service';
 import { error, fail } from '@sveltejs/kit';
+import { redirect } from 'sveltekit-flash-message/server';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
-import { parseFormData } from '$lib/server/form-data';
-import type { Actions, PageServerLoad } from './$types';
-import { httpServer } from '$lib/server/http-server';
-import { redirect } from 'sveltekit-flash-message/server';
 
 export const actions = {
   default: async (event) => {
@@ -21,12 +21,8 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [responseError] = await httpServer(`${AUTH_END_POINT}/register`, {
-      fetch: event.fetch,
-      schema: z.any(),
-      method: 'POST',
-      body: form,
-    });
+    const authService = AuthService.create(fetch);
+    const [responseError] = await authService.register(form);
     if (responseError) {
       return fail(responseError.status, { error: responseError });
     }
@@ -35,9 +31,9 @@ export const actions = {
     });
     throw redirect(301, `/login?${query.toString()}`, {}, event);
   },
-} satisfies Actions;
+};
 
-export const load = (async ({ fetch, setHeaders }) => {
+export async function load({ fetch, setHeaders }) {
   const [regionsError, regions] = await httpServer(`${REGION_END_POINT}`, {
     method: 'GET',
     fetch,
@@ -56,4 +52,4 @@ export const load = (async ({ fetch, setHeaders }) => {
     'Cache-Control': 'public, max-age=3600',
   });
   return { regions };
-}) satisfies PageServerLoad;
+}

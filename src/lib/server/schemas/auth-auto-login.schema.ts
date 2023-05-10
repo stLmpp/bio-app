@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const AutoLoginSchema = z.object({
+export const AuthAutoLoginSchema = z.object({
   user: z.object({
     userId: z.string(),
     username: z.string(),

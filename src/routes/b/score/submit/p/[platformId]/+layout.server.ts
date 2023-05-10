@@ -1,24 +1,14 @@
-import {
-  PLATFORM_END_POINT,
-  PLATFORM_GAME_MINI_GAME_END_POINT,
-} from '$env/static/private';
-import { httpServer } from '$lib/server/http-server.js';
-import { error, redirect } from '@sveltejs/kit';
-import { z } from 'zod';
+import { PLATFORM_GAME_MINI_GAME_END_POINT } from '$env/static/private';
 import { arrayUniqBy } from '$lib/array-uniq-by.js';
+import { httpServer } from '$lib/server/http-server.js';
+import { PlatformService } from '$lib/server/services/platform.service.js';
+import { error, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
+import { z } from 'zod';
 
 export async function load({ fetch, params }) {
-  const [platformError, platform] = await httpServer(
-    `${PLATFORM_END_POINT}/${params.platformId}`,
-    {
-      fetch,
-      schema: z.object({
-        platformId: z.string(),
-        name: z.string(),
-      }),
-    }
-  );
+  const platformService = PlatformService.create(fetch);
+  const [platformError, platform] = await platformService.getOne(params.platformId);
 
   if (platformError) {
     if (platformError.status === StatusCodes.NOT_FOUND) {

@@ -1,7 +1,6 @@
-import { AUTH_END_POINT } from '$env/static/private';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
 import { parseFormData } from '$lib/server/form-data';
-import { httpServer } from '$lib/server/http-server';
+import { AuthService } from '$lib/server/services/auth.service';
 import { fail, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
@@ -22,14 +21,8 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const [error, response] = await httpServer(`${AUTH_END_POINT}/login`, {
-      fetch,
-      method: 'POST',
-      schema: z.object({
-        accessToken: z.string(),
-      }),
-      body: formData,
-    });
+    const authService = AuthService.create(fetch);
+    const [error, response] = await authService.login(formData);
     if (error) {
       return fail(error.status, { error });
     }

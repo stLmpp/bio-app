@@ -47,9 +47,3 @@
     Next
   </Button>
 </form>
-
-<style lang="scss">
-  h2 {
-    margin-bottom: 2rem;
-  }
-</style>

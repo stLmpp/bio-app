@@ -24,7 +24,7 @@
     {#if data.user.admin}
       <HeaderActionLink href="/a" icon={UserAdmin} />
     {/if}
-    <form method="POST" action="?/logout" use:enhance>
+    <form method="POST" action="/b?/logout" use:enhance>
       <HeaderAction icon={Logout} type="submit" />
     </form>
   </HeaderUtilities>

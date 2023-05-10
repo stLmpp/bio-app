@@ -1,15 +1,10 @@
-import { PLATFORM_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
+import { PlatformService } from '$lib/server/services/platform.service';
 import { error, json } from '@sveltejs/kit';
-import { z } from 'zod';
 import type { RequestHandler } from './$types';
 
 export const DELETE = (async ({ fetch, params }) => {
-  const [responseError] = await httpServer(`${PLATFORM_END_POINT}/${params.platformId}`, {
-    method: 'DELETE',
-    fetch,
-    schema: z.void(),
-  });
+  const platformService = PlatformService.create(fetch);
+  const [responseError] = await platformService.delete(params.platformId);
   if (responseError) {
     throw error(responseError.status, responseError);
   }

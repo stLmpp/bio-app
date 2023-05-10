@@ -1,8 +1,6 @@
-import { AUTH_AUTO_LOGIN_END_POINT } from '$env/static/private';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
-import { AutoLoginSchema } from '$lib/server/auto-login.schema';
-import { httpServer } from '$lib/server/http-server';
 import { safeDecode } from '$lib/server/safe-decode-jwt';
+import { AuthService } from '$lib/server/services/auth.service';
 import type { HandleFetch } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
 import './polyfills';
@@ -43,14 +41,8 @@ export async function handle({ event, resolve }) {
     event.locals.user = null;
     return loginResponse;
   }
-  const [responseError, response] = await httpServer(AUTH_AUTO_LOGIN_END_POINT, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${accessToken}`,
-    },
-    fetch,
-    schema: AutoLoginSchema,
-  });
+  const authService = AuthService.create(fetch);
+  const [responseError, response] = await authService.autoLogin(accessToken);
   if (responseError) {
     event.cookies.delete(ACCESS_TOKEN_COOKIE_KEY);
     event.locals.player = null;
