@@ -4,5 +4,5 @@ export const PlatformGameMiniGameModeGetOneSchema = z.object({
   platformGameMiniGameModeId: z.string(),
   modeId: z.string(),
   modeName: z.string(),
-  playerQuantity: z.string(),
+  playerQuantity: z.number(),
 });
