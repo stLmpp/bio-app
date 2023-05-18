@@ -69,6 +69,9 @@
         miniGameId,
         platformGameMiniGameId: fakeId,
         platformId: platformIdSelected,
+        gameName: '',
+        miniGameName: '',
+        platformName: '',
       },
     ];
     const [error, response] = await httpClient('/api/platform-game-mini-game', {

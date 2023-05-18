@@ -35,7 +35,7 @@ export function _internalHttpFactory(browser: true): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-    query?: Record<string, unknown>;
+    query?: Record<any, any>;
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
@@ -45,7 +45,7 @@ export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-    query?: Record<string, unknown>;
+    query?: Record<any, any>;
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
@@ -55,7 +55,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     schema: T;
     body?: unknown;
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-    query?: Record<string, unknown>;
+    query?: Record<any, any>;
   }
 ) => Promise<HttpResponse<T>> {
   return async function http<T extends ZodSchema>(
@@ -71,7 +71,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
       schema: T;
       body?: unknown;
       method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-      query?: Record<string, unknown>;
+      query?: Record<any, any>;
     }
   ): Promise<HttpResponse<T>> {
     if (browser) {
@@ -88,6 +88,9 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
     const newUrl = getNewUrl(url, browser);
     if (query) {
       for (const [key, value] of Object.entries(query)) {
+        if (typeof value === 'undefined' || value === null) {
+          continue;
+        }
         newUrl.searchParams.set(key, String(value));
       }
     }

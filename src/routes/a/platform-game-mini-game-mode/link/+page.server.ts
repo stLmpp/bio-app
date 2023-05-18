@@ -1,15 +1,16 @@
 import {
   MODE_END_POINT,
-  PLATFORM_GAME_MINI_GAME_END_POINT,
   PLATFORM_GAME_MINI_GAME_MODE_END_POINT,
 } from '$env/static/private';
 import { arrayUniqBy } from '$lib/array-uniq-by';
 import { httpServer } from '$lib/server/http-server';
+import { PlatformGameMiniGameService } from '$lib/server/services/platform-game-mini-game.service';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ fetch }) => {
+  const platformGameMiniGameService = PlatformGameMiniGameService.create(fetch);
   const [
     modesResponse,
     platformGameMiniGamesResponse,
@@ -24,21 +25,7 @@ export const load = (async ({ fetch }) => {
         })
       ),
     }),
-    httpServer(PLATFORM_GAME_MINI_GAME_END_POINT, {
-      fetch,
-      schema: z.array(
-        z.object({
-          platformGameMiniGameId: z.string(),
-          platformId: z.string(),
-          platformName: z.string(),
-          gameMiniGameId: z.string(),
-          gameId: z.string(),
-          gameName: z.string(),
-          miniGameId: z.string(),
-          miniGameName: z.string(),
-        })
-      ),
-    }),
+    platformGameMiniGameService.get(),
     httpServer(PLATFORM_GAME_MINI_GAME_MODE_END_POINT, {
       fetch,
       schema: z.array(
