@@ -1,25 +1,13 @@
-import {
-  PLATFORM_GAME_MINI_GAME_MODE_END_POINT,
-  PLATFORM_GAME_MINI_GAME_MODE_STAGE_END_POINT,
-} from '$env/static/private';
-import { httpServer } from '$lib/server/http-server.js';
+import { PlatformGameMiniGameModeStageService } from '$lib/server/services/platform-game-mini-game-mode-stage.service.js';
+import { PlatformGameMiniGameModeService } from '$lib/server/services/platform-game-mini-game-mode.service.js';
 import { error, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
 
 export async function load({ fetch, params, parent }) {
   await parent();
-  const [platformGameMiniGameModeError, platformGameMiniGameMode] = await httpServer(
-    `${PLATFORM_GAME_MINI_GAME_MODE_END_POINT}/${params.platformGameMiniGameModeId}`,
-    {
-      fetch,
-      schema: z.object({
-        platformGameMiniGameModeId: z.string(),
-        modeId: z.string(),
-        modeName: z.string(),
-      }),
-    }
-  );
+  const platformGameMiniGameModeService = PlatformGameMiniGameModeService.create(fetch);
+  const [platformGameMiniGameModeError, platformGameMiniGameMode] =
+    await platformGameMiniGameModeService.getOne(params.platformGameMiniGameModeId);
 
   if (platformGameMiniGameModeError) {
     if (platformGameMiniGameModeError.status === StatusCodes.NOT_FOUND) {
@@ -30,20 +18,12 @@ export async function load({ fetch, params, parent }) {
     }
     throw error(platformGameMiniGameModeError.status, platformGameMiniGameModeError);
   }
-
-  const [responseError, platformGameMiniGameModeStages] = await httpServer(
-    `${PLATFORM_GAME_MINI_GAME_MODE_STAGE_END_POINT}/platform-game-mini-game-mode/${params.platformGameMiniGameModeId}`,
-    {
-      fetch,
-      schema: z.array(
-        z.object({
-          platformGameMiniGameModeStageId: z.string(),
-          stageId: z.string(),
-          stageName: z.string(),
-        })
-      ),
-    }
-  );
+  const platformGameMiniGameModeStageService =
+    PlatformGameMiniGameModeStageService.create(fetch);
+  const [responseError, platformGameMiniGameModeStages] =
+    await platformGameMiniGameModeStageService.getByPlatformGameMiniGameModeId(
+      params.platformGameMiniGameModeId
+    );
   if (responseError) {
     throw error(responseError.status, responseError);
   }

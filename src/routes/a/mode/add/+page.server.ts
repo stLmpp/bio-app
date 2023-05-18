@@ -1,6 +1,5 @@
-import { MODE_END_POINT } from '$env/static/private';
 import { parseFormData } from '$lib/server/form-data';
-import { httpServer } from '$lib/server/http-server';
+import { ModeService } from '$lib/server/services/mode.service';
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
@@ -18,16 +17,8 @@ export const actions = {
     if (formDataError) {
       return fail(formDataError.status, { error: formDataError });
     }
-    const [responseError] = await httpServer(MODE_END_POINT, {
-      fetch,
-      schema: z.object({
-        modeId: z.string(),
-        name: z.string(),
-        playerQuantity: z.number(),
-      }),
-      method: 'POST',
-      body: formData,
-    });
+    const modeService = ModeService.create(fetch);
+    const [responseError] = await modeService.post(formData);
     if (responseError) {
       return fail(responseError.status, { error: responseError });
     }

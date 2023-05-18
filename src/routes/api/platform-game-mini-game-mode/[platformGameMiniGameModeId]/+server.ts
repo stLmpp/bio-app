@@ -1,17 +1,11 @@
-import { PLATFORM_GAME_MINI_GAME_MODE_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
 import { error, json } from '@sveltejs/kit';
-import { z } from 'zod';
+import { PlatformGameMiniGameModeService } from '$lib/server/services/platform-game-mini-game-mode.service';
 import type { RequestHandler } from './$types';
 
 export const DELETE = (async ({ params, fetch }) => {
-  const [responseError] = await httpServer(
-    `${PLATFORM_GAME_MINI_GAME_MODE_END_POINT}/${params.platformGameMiniGameModeId}`,
-    {
-      fetch,
-      method: 'DELETE',
-      schema: z.void(),
-    }
+  const platformGameMiniGameModeService = PlatformGameMiniGameModeService.create(fetch);
+  const [responseError] = await platformGameMiniGameModeService.delete(
+    params.platformGameMiniGameModeId
   );
   if (responseError) {
     throw error(responseError.status, responseError);

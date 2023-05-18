@@ -1,15 +1,10 @@
-import { MODE_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server';
-import { z } from 'zod';
-import type { RequestHandler } from './$types';
+import { ModeService } from '$lib/server/services/mode.service';
 import { error, json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
 export const DELETE = (async ({ fetch, params }) => {
-  const [responseError] = await httpServer(`${MODE_END_POINT}/${params.modeId}`, {
-    fetch,
-    schema: z.void(),
-    method: 'DELETE',
-  });
+  const modeService = ModeService.create(fetch);
+  const [responseError] = await modeService.delete(params.modeId);
   if (responseError) {
     throw error(responseError.status, responseError);
   }

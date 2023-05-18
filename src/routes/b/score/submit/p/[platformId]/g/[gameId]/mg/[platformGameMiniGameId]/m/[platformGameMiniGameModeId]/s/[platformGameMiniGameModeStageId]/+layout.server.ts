@@ -1,22 +1,14 @@
-import { PLATFORM_GAME_MINI_GAME_MODE_STAGE_END_POINT } from '$env/static/private';
-import { httpServer } from '$lib/server/http-server.js';
+import { PlatformGameMiniGameModeStageService } from '$lib/server/services/platform-game-mini-game-mode-stage.service.js';
 import { error, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
 
 export async function load({ fetch, params, parent }) {
   await parent();
+  const platformGameMinIGameModeStageService =
+    PlatformGameMiniGameModeStageService.create(fetch);
   const [platformGameMiniGameModeStageError, platformGameMiniGameModeStage] =
-    await httpServer(
-      `${PLATFORM_GAME_MINI_GAME_MODE_STAGE_END_POINT}/${params.platformGameMiniGameModeStageId}`,
-      {
-        fetch,
-        schema: z.object({
-          platformGameMiniGameModeStageId: z.string(),
-          stageId: z.string(),
-          stageName: z.string(),
-        }),
-      }
+    await platformGameMinIGameModeStageService.getOne(
+      params.platformGameMiniGameModeStageId
     );
   if (platformGameMiniGameModeStageError) {
     if (platformGameMiniGameModeStageError.status === StatusCodes.NOT_FOUND) {
