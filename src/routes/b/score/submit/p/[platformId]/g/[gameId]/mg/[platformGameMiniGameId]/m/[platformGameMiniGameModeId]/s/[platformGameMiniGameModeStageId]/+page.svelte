@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { formGroup2 } from '$lib/form-group2.js';
   import { NumberInput, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
-  import { formGroup2 } from '$lib/form-group2.js';
   import type { ScoreInitialValue, ScoreSchema } from './schema.js';
 
   export let data;
@@ -11,10 +11,10 @@
     (_, index) => index + 1
   );
   const schema: ScoreSchema = {
-    description: z.string().optional(),
-    maxCombo: z.number().optional(),
+    description: z.string().nonempty().max(5000).optional(),
+    maxCombo: z.number().positive().optional(),
     platformGameMiniGameModeStageId: z.string(),
-    score: z.number(),
+    score: z.number().positive().safe(),
     time: z.string().optional(),
   };
   const initialValue: ScoreInitialValue = {
@@ -50,10 +50,10 @@
       bulletKillsKey,
     } = getPlayerKeys(player);
     schema[hostKey] = z.boolean();
-    schema[platformGameMiniGameModeCharacterCostumeIdKey] = z.string();
-    schema[playerIdKey] = z.string();
+    schema[platformGameMiniGameModeCharacterCostumeIdKey] = z.string().nonempty();
+    schema[playerIdKey] = z.string().nonempty();
     schema[platformInputTypeIdKey] = z.string().optional();
-    schema[bulletKillsKey] = z.number().optional();
+    schema[bulletKillsKey] = z.number().positive().optional();
     initialValue[hostKey] = player === 1;
     initialValue[platformGameMiniGameModeCharacterCostumeIdKey] = '';
     initialValue[playerIdKey] = '';
@@ -61,16 +61,11 @@
     initialValue[bulletKillsKey] = undefined;
   }
 
-  const { form, errors } = formGroup2({
-    schema: {
-      number: z.number(),
-      text: z.string().nonempty(),
-    },
-    initial: {
-      number: 1,
-      text: '123',
-    },
+  const { form, errors, formValid, valid, constraints } = formGroup2({
+    schema,
+    initial: initialValue,
   });
+  $: console.log($form);
 </script>
 
 <pre>
@@ -78,11 +73,25 @@
     {
       form: $form,
       errors: $errors,
+      formValid: $formValid,
+      valid: $valid,
+      constraints,
     },
     null,
     2
   )}
 </pre>
 
-<NumberInput bind:value={$form.number} />
-<TextInput bind:value={$form.text} />
+{#each playerNumbers as playerNumber}
+  <h4>Player {playerNumber}</h4>
+  {@const { playerIdKey } = getPlayerKeys(playerNumber)}
+  <TextInput
+    bind:value={$form[playerIdKey]}
+    {...constraints[playerIdKey]}
+    invalid={$valid[playerIdKey]}
+    invalidText={$errors[playerIdKey] ?? ''}
+    labelText="Player id"
+    placeholder="Player id"
+  />
+  <div style="margin-bottom: 2rem" />
+{/each}
