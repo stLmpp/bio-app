@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formGroup2 } from '$lib/form-group2.js';
-  import { NumberInput, TextInput } from 'carbon-components-svelte';
+  import { RadioButton, Select, SelectItem, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ScoreInitialValue, ScoreSchema } from './schema.js';
 
@@ -18,7 +18,8 @@
     time: z.string().optional(),
   };
   const initialValue: ScoreInitialValue = {
-    platformGameMiniGameModeStageId: '',
+    platformGameMiniGameModeStageId:
+      data.platformGameMiniGameModeStage.platformGameMiniGameModeStageId,
     score: 0,
     description: undefined,
     maxCombo: undefined,
@@ -55,27 +56,23 @@
     schema[platformInputTypeIdKey] = z.string().optional();
     schema[bulletKillsKey] = z.number().positive().optional();
     initialValue[hostKey] = player === 1;
-    initialValue[platformGameMiniGameModeCharacterCostumeIdKey] = '';
+    initialValue[platformGameMiniGameModeCharacterCostumeIdKey] =
+      data.characters[0].platformGameMiniGameModeCharacterCostumeId;
     initialValue[playerIdKey] = '';
     initialValue[platformInputTypeIdKey] = undefined;
     initialValue[bulletKillsKey] = undefined;
   }
 
-  const { form, errors, formValid, valid, constraints } = formGroup2({
+  const { form, errors, formValid, valid, constraints, update } = formGroup2({
     schema,
     initial: initialValue,
   });
-  $: console.log($form);
 </script>
 
 <pre>
   {JSON.stringify(
     {
       form: $form,
-      errors: $errors,
-      formValid: $formValid,
-      valid: $valid,
-      constraints,
     },
     null,
     2
@@ -84,14 +81,47 @@
 
 {#each playerNumbers as playerNumber}
   <h4>Player {playerNumber}</h4>
-  {@const { playerIdKey } = getPlayerKeys(playerNumber)}
+  {@const {
+    playerIdKey,
+    platformGameMiniGameModeCharacterCostumeIdKey,
+    bulletKillsKey,
+    hostKey,
+    platformInputTypeIdKey,
+  } = getPlayerKeys(playerNumber)}
+  <RadioButton
+    bind:checked={$form[hostKey]}
+    labelText="Host"
+    on:change={() => {
+      if ($form[hostKey]) {
+        return;
+      }
+      update((formValue) => {
+        for (const _playerNumber of playerNumbers) {
+          const { hostKey: _hostKey } = getPlayerKeys(_playerNumber);
+          formValue[_hostKey] = _playerNumber === playerNumber;
+        }
+        return formValue;
+      });
+    }}
+  />
   <TextInput
     bind:value={$form[playerIdKey]}
     {...constraints[playerIdKey]}
-    invalid={$valid[playerIdKey]}
+    invalid={!$valid[playerIdKey]}
     invalidText={$errors[playerIdKey] ?? ''}
     labelText="Player id"
     placeholder="Player id"
   />
+  <Select
+    labelText="Character"
+    bind:selected={$form[platformGameMiniGameModeCharacterCostumeIdKey]}
+  >
+    {#each data.characters as character (character.platformGameMiniGameModeCharacterCostumeId)}
+      <SelectItem
+        value={character.platformGameMiniGameModeCharacterCostumeId}
+        text={character.characterFullName}
+      />
+    {/each}
+  </Select>
   <div style="margin-bottom: 2rem" />
 {/each}

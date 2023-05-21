@@ -1,4 +1,4 @@
-import { get, writable, type Readable, type Writable } from 'svelte/store';
+import { get, writable, type Readable, type Updater, type Writable } from 'svelte/store';
 import {
   ZodDefault,
   ZodEffects,
@@ -49,6 +49,7 @@ export type FormGroup<T extends RecordZod> = {
   valid: Readable<FormGroupValid<T>>;
   formValid: Readable<boolean>;
   constraints: FormGroupContraints<T>;
+  update: (updater: Updater<FormGroupValue<T>>) => void;
 };
 
 export type FormGroupOptions<T extends RecordZod> = {
@@ -218,35 +219,36 @@ export function formGroup2<T extends RecordZod>({
   const initialValid = getInitialValid(schema, initial, initialValidation);
   const valid = writable<FormGroupValid<T>>(initialValid);
   const formValid = writable<boolean>(isFormValid(initialValid));
-  return {
-    form: {
-      subscribe: store.subscribe,
-      set: (formValue) => {
-        const newErrors: FormGroupErrors<T> = { ...get(errors) };
-        const newValid = { ...get(valid) };
-        for (const key of objectKeys(formValue)) {
-          const keys = getKeys(key);
-          const validator = schema[key];
-          const oldValue = formValue[keys.value];
-          const newValue = formValue[keys.newValue];
-          if (oldValue !== newValue) {
-            const result = validator.safeParse(newValue);
-            newErrors[key] = result.success
-              ? undefined
-              : formatZodErrorString(result.error, { onlyFirstError: true });
-            formValue[keys.setValue](newValue);
-            newValid[key] = result.success;
-          }
+  const form: Writable<FormGroupValue<T>> = {
+    subscribe: store.subscribe,
+    set: (formValue) => {
+      const newErrors: FormGroupErrors<T> = { ...get(errors) };
+      const newValid = { ...get(valid) };
+      for (const key of objectKeys(formValue)) {
+        const keys = getKeys(key);
+        const validator = schema[key];
+        const oldValue = formValue[keys.value];
+        const newValue = formValue[keys.newValue];
+        if (oldValue !== newValue) {
+          const result = validator.safeParse(newValue);
+          newErrors[key] = result.success
+            ? undefined
+            : formatZodErrorString(result.error, { onlyFirstError: true });
+          formValue[keys.setValue](newValue);
+          newValid[key] = result.success;
         }
-        valid.set(newValid);
-        formValid.set(isFormValid(newValid));
-        errors.set(newErrors);
-        store.set(formValue);
-      },
-      update: () => {
-        throw new Error('Update is not allowed');
-      },
+      }
+      valid.set(newValid);
+      formValid.set(isFormValid(newValid));
+      errors.set(newErrors);
+      store.set(formValue);
     },
+    update: () => {
+      throw new Error('Update is not allowed');
+    },
+  };
+  return {
+    form,
     errors: {
       subscribe: errors.subscribe,
     },
@@ -257,5 +259,8 @@ export function formGroup2<T extends RecordZod>({
       subscribe: formValid.subscribe,
     },
     constraints: getContraints(schema),
+    update: (updater) => {
+      form.set(updater(get(store)));
+    },
   };
 }
