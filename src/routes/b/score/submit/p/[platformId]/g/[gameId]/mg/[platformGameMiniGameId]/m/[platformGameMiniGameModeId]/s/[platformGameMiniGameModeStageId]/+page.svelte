@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formGroup2 } from '$lib/form-group2.js';
+  import { formGroup2 } from '$lib/form-group/form-group2.js';
   import { RadioButton, Select, SelectItem, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ScoreInitialValue, ScoreSchema } from './schema.js';
@@ -73,6 +73,8 @@
   {JSON.stringify(
     {
       form: $form,
+      valid: $valid,
+      errors: $errors,
     },
     null,
     2
