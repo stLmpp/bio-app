@@ -1,4 +1,4 @@
-import type { Readable, Updater } from 'svelte/store';
+import { readable, type Readable, type Updater } from 'svelte/store';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import {
   ZodDefault,
@@ -37,7 +37,7 @@ class FormGroup<T extends RecordZod> {
     this.#initialValidation = !!initialValidation;
     this.#entries = objectEntries(this.#schema);
     this.#form = writable(this.#getInitial());
-    this.#errors = writable<FormGroupErrors<T>>(this.#getInitialErrors());
+    this.#errors = writable(this.#getInitialErrors());
     this.form = this.#getForm();
     this.errors = toReadable(this.#errors);
     this.valid = this.#getValid();
@@ -69,13 +69,16 @@ class FormGroup<T extends RecordZod> {
   }
 
   #getValid(): Readable<FormGroupValid<T>> {
+    if (!browser) {
+      const object = {} as FormGroupValid<T>;
+      for (const [key] of this.#entries) {
+        object[key] = true;
+      }
+      return readable(object);
+    }
     return derived(this.errors, (errors) => {
       const valid = {} as FormGroupValid<T>;
       for (const [key] of this.#entries) {
-        if (!browser) {
-          valid[key] = true;
-          continue;
-        }
         const hasError = typeof errors[key] !== 'undefined';
         valid[key] = this.#initialValidation
           ? !hasError
@@ -86,7 +89,10 @@ class FormGroup<T extends RecordZod> {
   }
 
   #getFormValid(): Readable<boolean> {
-    return derived(this.valid, (isValid) => Object.values(isValid).every(Boolean));
+    if (!browser) {
+      return readable(true);
+    }
+    return derived(this.valid, (valid) => Object.values(valid).every(Boolean));
   }
 
   #getImmutableKeys(key: keyof T) {
@@ -150,7 +156,7 @@ class FormGroup<T extends RecordZod> {
 
   #getConstraints(): FormGroupConstraints<T> {
     const constraints = {} as FormGroupConstraints<T>;
-    for (const [key, value] of objectEntries(this.#schema)) {
+    for (const [key, value] of this.#entries) {
       constraints[key] = this.#getConstraint(key, value);
     }
     return constraints;
@@ -161,7 +167,7 @@ class FormGroup<T extends RecordZod> {
       return {};
     }
     const errors: FormGroupErrors<T> = {};
-    for (const [key, value] of objectEntries(this.#schema)) {
+    for (const [key, value] of this.#entries) {
       const result = value.safeParse(this.#initial[key]);
       errors[key] = result.success
         ? undefined
@@ -172,7 +178,7 @@ class FormGroup<T extends RecordZod> {
 
   #getInitial(): FormGroupValue<T> {
     const initial = { ...this.#initial };
-    for (const key of objectKeys(this.#schema)) {
+    for (const [key] of this.#entries) {
       if (typeof initial[key] === 'undefined') {
         initial[key] = undefined;
       }
