@@ -1,5 +1,5 @@
 import { vitePreprocess } from '@sveltejs/kit/vite';
-import firebase from 'svelte-adapter-firebase';
+import adapter from '@sveltejs/adapter-node';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -16,7 +16,7 @@ const config = {
     handler(warning);
   },
   kit: {
-    adapter: firebase(),
+    adapter: adapter(),
     alias: {
       $lib: 'src/lib',
     },
