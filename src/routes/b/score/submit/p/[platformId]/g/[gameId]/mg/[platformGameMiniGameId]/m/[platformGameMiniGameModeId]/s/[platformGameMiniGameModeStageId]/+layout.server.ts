@@ -1,15 +1,22 @@
 import { PlatformGameMiniGameModeStageService } from '$lib/server/services/platform-game-mini-game-mode-stage.service.js';
 import { error, redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
+import { PlatformGameMiniGameModeCharacterCostumeService } from '$lib/server/services/platform-game-mini-game-mode-character-costume.service';
 
 export async function load({ fetch, params, parent }) {
   await parent();
   const platformGameMinIGameModeStageService =
     PlatformGameMiniGameModeStageService.create(fetch);
+  const platformGameMiniGameModeCharacterCostumeService =
+    PlatformGameMiniGameModeCharacterCostumeService.create(fetch);
+  const [platformGameMiniGameModeStageResponse, charactersResponse] = await Promise.all([
+    platformGameMinIGameModeStageService.getOne(params.platformGameMiniGameModeStageId),
+    platformGameMiniGameModeCharacterCostumeService.getByPlatformGameMiniGameModeId(
+      params.platformGameMiniGameModeId
+    ),
+  ]);
   const [platformGameMiniGameModeStageError, platformGameMiniGameModeStage] =
-    await platformGameMinIGameModeStageService.getOne(
-      params.platformGameMiniGameModeStageId
-    );
+    platformGameMiniGameModeStageResponse;
   if (platformGameMiniGameModeStageError) {
     if (platformGameMiniGameModeStageError.status === StatusCodes.NOT_FOUND) {
       throw redirect(
@@ -23,7 +30,14 @@ export async function load({ fetch, params, parent }) {
     );
   }
 
+  const [charactersError, characters] = charactersResponse;
+
+  if (charactersError) {
+    throw error(charactersError.status, charactersError);
+  }
+
   return {
     platformGameMiniGameModeStage,
+    characters,
   };
 }

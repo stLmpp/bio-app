@@ -36,4 +36,16 @@ export const Exceptions = {
     message: args?.message ?? 'Form action custom bad request error',
     status: StatusCodes.BAD_REQUEST,
   }),
+  MissingFetchParameterServer: () => ({
+    errorCode: 'FRONT-0006',
+    error: 'Required fetch parameter not provided in the server',
+    message: 'Required fetch parameter not provided in the server',
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+  }),
+  InvalidFetchParameterServer: () => ({
+    errorCode: 'FRONT-0007',
+    error: 'Required fetch parameter provided is the same as the global fetch',
+    message: 'Required fetch parameter provided is the same as the global fetch',
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+  }),
 } satisfies Record<string, Exception>;

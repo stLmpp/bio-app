@@ -20,7 +20,7 @@ export const actions = {
     if (formError) {
       return fail(formError.status, { error: formError });
     }
-    const authService = AuthService.create(fetch);
+    const authService = AuthService.create(event.fetch);
     const [responseError] = await authService.register(form);
     if (responseError) {
       return fail(responseError.status, { error: responseError });
