@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { formGroup } from '$lib/form-group';
+  import Seo from '$lib/components/Seo.svelte';
+  import { enhanceForm } from '$lib/enhance-form';
+  import { formGroup } from '$lib/form-group/form-group';
   import { Button, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
-  import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData } from './$types';
-  import Seo from '$lib/components/Seo.svelte';
 
   export let form: ActionData;
 
@@ -12,16 +12,16 @@
   const SHORT_NAME_MAX_LENGTH = 10;
   let loading = false;
 
-  const [{ name, shortName }, { constraints, errors, showAllErrors, valid }] = formGroup(
-    {
+  const { f, constraints, errors, showAllErrors, valid, allValid } = formGroup({
+    schema: {
       shortName: z.string().nonempty('Short name is required').max(SHORT_NAME_MAX_LENGTH),
       name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
     },
-    {
+    initial: {
       name: '',
       shortName: '',
-    }
-  );
+    },
+  });
 </script>
 
 <Seo title="Add Game" description="Add new Game" />
@@ -31,7 +31,7 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$valid.group) {
+    if (!$allValid) {
       showAllErrors();
       return cancel();
     }
@@ -44,21 +44,21 @@
 >
   <div class="fields">
     <TextInput
-      bind:value={$shortName}
+      bind:value={$f.shortName}
       labelText="Short name"
       placeholder="Short name"
-      invalid={!!$errors.shortName}
+      invalid={!$valid.shortName}
       invalidText={$errors.shortName}
-      helperText="{$shortName.length}/{SHORT_NAME_MAX_LENGTH} characters"
+      helperText="{$f.shortName.length}/{SHORT_NAME_MAX_LENGTH} characters"
       {...constraints.shortName}
     />
     <TextInput
-      bind:value={$name}
+      bind:value={$f.name}
       labelText="Name"
       placeholder="Name"
-      invalid={!!$errors.name}
+      invalid={!$valid.name}
       invalidText={$errors.name}
-      helperText="{$name.length}/{NAME_MAX_LENGTH} characters"
+      helperText="{$f.name.length}/{NAME_MAX_LENGTH} characters"
       {...constraints.name}
     />
   </div>

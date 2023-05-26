@@ -2,7 +2,7 @@
   import { page } from '$app/stores';
   import Seo from '$lib/components/Seo.svelte';
   import { enhanceForm } from '$lib/enhance-form';
-  import { formGroup2 } from '$lib/form-group/form-group2';
+  import { formGroup } from '$lib/form-group/form-group';
   import {
     Button,
     InlineNotification,
@@ -21,7 +21,7 @@
   const usernameOrEmailMinLength = 3;
   const passwordMinLength = 6;
   let loading = false;
-  const { f, showAllErrors, valid, errors, allValid, constraints } = formGroup2({
+  const { f, showAllErrors, valid, errors, allValid, constraints } = formGroup({
     schema: {
       usernameOrEmail: z
         .string()

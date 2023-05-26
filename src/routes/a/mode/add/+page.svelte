@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { formGroup } from '$lib/form-group';
+  import Seo from '$lib/components/Seo.svelte';
+  import { enhanceForm } from '$lib/enhance-form';
+  import { formGroup } from '$lib/form-group/form-group';
   import { Button, NumberInput, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
-  import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData } from './$types';
-  import Seo from '$lib/components/Seo.svelte';
 
   export let form: ActionData;
 
@@ -13,29 +13,28 @@
   const PLAYER_QUANTITY_MAX = 100;
   let loading = false;
 
-  const [{ name, playerQuantity }, { constraints, errors, showAllErrors, valid }] =
-    formGroup(
-      {
-        name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
-        playerQuantity: z
-          .number({
-            invalid_type_error: 'Player quantity is required',
-            required_error: 'Player quantity is required',
-          })
-          .min(
-            PLAYER_QUANTITY_MIN,
-            `Player quantity must be greater than or equal to ${PLAYER_QUANTITY_MIN}`
-          )
-          .max(
-            PLAYER_QUANTITY_MAX,
-            `Player quantity must be less than or equal to ${PLAYER_QUANTITY_MAX}`
-          ),
-      },
-      {
-        name: '',
-        playerQuantity: 1,
-      }
-    );
+  const { f, constraints, errors, showAllErrors, valid, allValid } = formGroup({
+    schema: {
+      name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
+      playerQuantity: z
+        .number({
+          invalid_type_error: 'Player quantity is required',
+          required_error: 'Player quantity is required',
+        })
+        .min(
+          PLAYER_QUANTITY_MIN,
+          `Player quantity must be greater than or equal to ${PLAYER_QUANTITY_MIN}`
+        )
+        .max(
+          PLAYER_QUANTITY_MAX,
+          `Player quantity must be less than or equal to ${PLAYER_QUANTITY_MAX}`
+        ),
+    },
+    initial: {
+      name: '',
+      playerQuantity: 1,
+    },
+  });
 </script>
 
 <Seo title="Add Mode" description="Add new Mode" />
@@ -45,7 +44,7 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$valid.group) {
+    if (!$allValid) {
       showAllErrors();
       return cancel();
     }
@@ -58,19 +57,19 @@
 >
   <div class="fields">
     <TextInput
-      bind:value={$name}
+      bind:value={$f.name}
       labelText="Name"
       placeholder="Name"
-      invalid={!!$errors.name}
+      invalid={!$valid.name}
       invalidText={$errors.name}
-      helperText="{$name.length}/{NAME_MAX_LENGTH} characters"
+      helperText="{$f.name.length}/{NAME_MAX_LENGTH} characters"
       {...constraints.name}
     />
     <NumberInput
-      bind:value={$playerQuantity}
+      bind:value={$f.playerQuantity}
       label="Player quantity"
       placeholder="Player quantity"
-      invalid={!!$errors.playerQuantity}
+      invalid={!$valid.playerQuantity}
       invalidText={$errors.playerQuantity}
       helperText="Min {PLAYER_QUANTITY_MIN}, Max {PLAYER_QUANTITY_MAX}"
       {...constraints.playerQuantity}

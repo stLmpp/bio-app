@@ -24,7 +24,7 @@ import { objectKeys } from '$lib/object-keys';
 import { toReadable } from '$lib/to-readable';
 import { browser } from '$app/environment';
 
-export function formGroup2<T extends RecordZod>(
+export function formGroup<T extends RecordZod>(
   options: FormGroupOptions<T>
 ): FormGroup<T> {
   return new FormGroup(options);

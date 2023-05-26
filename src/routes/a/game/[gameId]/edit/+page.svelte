@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { formGroup } from '$lib/form-group';
+  import Seo from '$lib/components/Seo.svelte';
+  import { enhanceForm } from '$lib/enhance-form';
+  import { formGroup } from '$lib/form-group/form-group';
   import { Button, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
-  import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData, PageData } from './$types';
-  import Seo from '$lib/components/Seo.svelte';
 
   export let form: ActionData;
   export let data: PageData;
@@ -16,20 +16,16 @@
   // TODO figure out a way to send only edited fields
   // TODO must be a global solution with formGroup
 
-  const [{ name, shortName }, { constraints, errors, showAllErrors, valid, groupDirty }] =
-    formGroup(
-      {
-        shortName: z
-          .string()
-          .nonempty('Short name is required')
-          .max(SHORT_NAME_MAX_LENGTH),
-        name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
-      },
-      {
-        name: data.game.name,
-        shortName: data.game.shortName,
-      }
-    );
+  const { f, showAllErrors, valid, allValid, errors, constraints } = formGroup({
+    schema: {
+      shortName: z.string().nonempty('Short name is required').max(SHORT_NAME_MAX_LENGTH),
+      name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
+    },
+    initial: {
+      name: data.game.name,
+      shortName: data.game.shortName,
+    },
+  });
 </script>
 
 <Seo title="Edit Game" description="Edit Game" />
@@ -38,18 +34,19 @@
 
 <form
   method="POST"
-  use:enhanceForm={({ cancel, data: formData }) => {
-    const entries = Object.entries($groupDirty);
-    if (!$valid.group || !entries.length) {
+  use:enhanceForm={({ cancel }) => {
+    // const entries = Object.entries($groupDirty);
+    // if (!$allValid || !entries.length) {
+    if (!$allValid) {
       showAllErrors();
       return cancel();
     }
-    for (const key of formData.keys()) {
-      formData.delete(key);
-    }
-    for (const [key, value] of entries) {
-      formData.set(key, value);
-    }
+    // for (const key of formData.keys()) {
+    //   formData.delete(key);
+    // }
+    // for (const [key, value] of entries) {
+    //   formData.set(key, value);
+    // }
     loading = true;
     return async ({ update }) => {
       await update();
@@ -59,21 +56,21 @@
 >
   <div class="fields">
     <TextInput
-      bind:value={$shortName}
+      bind:value={$f.shortName}
       labelText="Short name"
       placeholder="Short name"
-      invalid={!!$errors.shortName}
+      invalid={!$valid.shortName}
       invalidText={$errors.shortName}
-      helperText="{$shortName.length}/{SHORT_NAME_MAX_LENGTH} characters"
+      helperText="{$f.shortName.length}/{SHORT_NAME_MAX_LENGTH} characters"
       {...constraints.shortName}
     />
     <TextInput
-      bind:value={$name}
+      bind:value={$f.name}
       labelText="Name"
       placeholder="Name"
-      invalid={!!$errors.name}
+      invalid={!$valid.name}
       invalidText={$errors.name}
-      helperText="{$name.length}/{NAME_MAX_LENGTH} characters"
+      helperText="{$f.name.length}/{NAME_MAX_LENGTH} characters"
       {...constraints.name}
     />
   </div>

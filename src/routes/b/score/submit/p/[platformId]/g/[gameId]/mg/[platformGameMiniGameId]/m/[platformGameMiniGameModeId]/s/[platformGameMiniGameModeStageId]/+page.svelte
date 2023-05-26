@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formGroup2 } from '$lib/form-group/form-group2.js';
+  import { formGroup } from '$lib/form-group/form-group.js';
   import { RadioButton, Select, SelectItem, TextInput } from 'carbon-components-svelte';
   import { z } from 'zod';
   import type { ScoreInitialValue, ScoreSchema } from './schema.js';
@@ -63,14 +63,7 @@
     initialValue[bulletKillsKey] = undefined;
   }
 
-  const {
-    f: form,
-    errors,
-    allValid: formValid,
-    valid,
-    constraints,
-    update,
-  } = formGroup2({
+  const { f, errors, valid, constraints, update } = formGroup({
     schema,
     initial: initialValue,
   });
@@ -79,7 +72,7 @@
 <pre>
   {JSON.stringify(
     {
-      form: $form,
+      form: $f,
       valid: $valid,
       errors: $errors,
     },
@@ -98,10 +91,10 @@
     platformInputTypeIdKey,
   } = getPlayerKeys(playerNumber)}
   <RadioButton
-    bind:checked={$form[hostKey]}
+    bind:checked={$f[hostKey]}
     labelText="Host"
     on:change={() => {
-      if ($form[hostKey]) {
+      if ($f[hostKey]) {
         return;
       }
       update((formValue) => {
@@ -114,7 +107,7 @@
     }}
   />
   <TextInput
-    bind:value={$form[playerIdKey]}
+    bind:value={$f[playerIdKey]}
     {...constraints[playerIdKey]}
     invalid={!$valid[playerIdKey]}
     invalidText={$errors[playerIdKey] ?? ''}
@@ -123,7 +116,7 @@
   />
   <Select
     labelText="Character"
-    bind:selected={$form[platformGameMiniGameModeCharacterCostumeIdKey]}
+    bind:selected={$f[platformGameMiniGameModeCharacterCostumeIdKey]}
   >
     {#each data.characters as character (character.platformGameMiniGameModeCharacterCostumeId)}
       <SelectItem

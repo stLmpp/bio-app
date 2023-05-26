@@ -1,7 +1,7 @@
 <script lang="ts">
   import Seo from '$lib/components/Seo.svelte';
   import { enhanceForm } from '$lib/enhance-form';
-  import { formGroup } from '$lib/form-group';
+  import { formGroup } from '$lib/form-group/form-group';
   import {
     Button,
     PasswordInput,
@@ -22,11 +22,8 @@
   const passwordMinLength = 6;
   const passwordPattern = '[A-Za-z\\d]{6,}';
 
-  const [
-    { username, email, password, regionId },
-    { errors, valid, showAllErrors, constraints },
-  ] = formGroup(
-    {
+  const { f, allValid, showAllErrors, constraints, errors, valid } = formGroup({
+    schema: {
       username: z
         .string()
         .nonempty('Username is required')
@@ -42,13 +39,13 @@
       email: z.string().nonempty('E-mail is required').email().max(254),
       regionId: z.number().optional(),
     },
-    {
+    initial: {
       email: '',
       password: '',
       username: '',
       regionId: -1,
-    }
-  );
+    },
+  });
 </script>
 
 <Seo
@@ -59,7 +56,7 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$valid.group) {
+    if (!$allValid) {
       showAllErrors();
       return cancel();
     }
@@ -76,18 +73,18 @@
       placeholder="Username"
       autocomplete="username"
       {...constraints.username}
-      invalid={!!$errors.username}
+      invalid={!$valid.username}
       invalidText={$errors.username}
-      bind:value={$username}
+      bind:value={$f.username}
     />
     <TextInput
       labelText="E-mail"
       placeholder="E-mail"
       autocomplete="email"
       {...constraints.email}
-      invalid={!!$errors.email}
+      invalid={!$valid.email}
       invalidText={$errors.email}
-      bind:value={$email}
+      bind:value={$f.email}
     />
     <PasswordInput
       labelText="Password"
@@ -95,12 +92,12 @@
       autocomplete="password"
       {...constraints.password}
       pattern={passwordPattern}
-      invalid={!!$errors.password}
+      invalid={!$valid.password}
       invalidText={$errors.password}
       helperText="Password must contain at least {passwordMinLength} characters, 1 lowercase letter, 1 uppercase letter and 1 number"
-      bind:value={$password}
+      bind:value={$f.password}
     />
-    <Select name="regionId" id="regionId" labelText="Region" bind:selected={$regionId}>
+    <Select labelText="Region" bind:selected={$f.regionId} {...constraints.regionId}>
       {#each data.regions as region (region.regionId)}
         <SelectItem text={region.name} value={region.regionId} />
       {/each}
