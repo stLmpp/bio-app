@@ -19,12 +19,12 @@ export const actions = {
       await request.formData()
     );
     if (formError) {
-      return fail(formError.status, { error: formError });
+      return fail(formError.status, { error: formError, formData });
     }
     const authService = AuthService.create(fetch);
     const [error, response] = await authService.login(formData);
     if (error) {
-      return fail(error.status, { error });
+      return fail(error.status, { error, formData });
     }
     const { accessToken } = response;
     cookies.set(ACCESS_TOKEN_COOKIE_KEY, accessToken);

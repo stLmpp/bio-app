@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import Seo from '$lib/components/Seo.svelte';
-  import { formGroup } from '$lib/form-group';
+  import { enhanceForm } from '$lib/enhance-form';
+  import { formGroup2 } from '$lib/form-group/form-group2';
   import {
     Button,
     InlineNotification,
@@ -11,7 +12,6 @@
   import { Login } from 'carbon-icons-svelte';
   import { initFlash } from 'sveltekit-flash-message/client';
   import { z } from 'zod';
-  import { enhanceForm } from '$lib/enhance-form';
   import type { ActionData } from './$types';
 
   const flash = initFlash(page);
@@ -21,26 +21,26 @@
   const usernameOrEmailMinLength = 3;
   const passwordMinLength = 6;
   let loading = false;
-  const [{ password, usernameOrEmail }, { valid, errors, showAllErrors, constraints }] =
-    formGroup(
-      {
-        usernameOrEmail: z
-          .string()
-          .nonempty('Username or e-mail is required')
-          .min(
-            usernameOrEmailMinLength,
-            `Must contain at least ${usernameOrEmailMinLength} characters`
-          ),
-        password: z
-          .string()
-          .nonempty('Password is required')
-          .min(
-            passwordMinLength,
-            `Must contain at least ${passwordMinLength} characters`
-          ),
-      },
-      { usernameOrEmail: $page.url.searchParams.get('username') ?? '', password: '' }
-    );
+  const { f, showAllErrors, valid, errors, allValid, constraints } = formGroup2({
+    schema: {
+      usernameOrEmail: z
+        .string()
+        .nonempty('Username or e-mail is required')
+        .min(
+          usernameOrEmailMinLength,
+          `Must contain at least ${usernameOrEmailMinLength} characters`
+        ),
+      password: z
+        .string()
+        .nonempty('Password is required')
+        .min(passwordMinLength, `Must contain at least ${passwordMinLength} characters`),
+    },
+    initial: {
+      usernameOrEmail:
+        form?.formData?.usernameOrEmail ?? $page.url.searchParams.get('username') ?? '',
+      password: form?.formData?.password ?? '',
+    },
+  });
 </script>
 
 <Seo title="Login" description="Login to Biomercs and have access to all leaderboards" />
@@ -57,7 +57,7 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$valid.group) {
+    if (!$allValid) {
       showAllErrors();
       return cancel();
     }
@@ -74,22 +74,23 @@
       placeholder="Username or e-mail"
       autocomplete="email"
       {...constraints.usernameOrEmail}
-      invalid={!!$errors.usernameOrEmail}
+      invalid={!$valid.usernameOrEmail}
       invalidText={$errors.usernameOrEmail}
-      bind:value={$usernameOrEmail}
+      bind:value={$f.usernameOrEmail}
     />
     <PasswordInput
       labelText="Password"
       placeholder="Password"
       {...constraints.password}
-      bind:value={$password}
-      invalid={!!$errors.password}
+      bind:value={$f.password}
+      invalid={!$valid.password}
       invalidText={$errors.password}
     />
   </div>
-  {#if form}
-    <p class="form-error">{form.error.message}</p>
+  {#if form?.error}
+    <p class="form-error">{form?.error.message}</p>
   {/if}
+
   <div class="form-actions">
     <Button type="submit" disabled={loading} icon={Login}>Login</Button>
     <Button href="/register" kind="ghost">Register</Button>

@@ -63,7 +63,14 @@
     initialValue[bulletKillsKey] = undefined;
   }
 
-  const { form, errors, formValid, valid, constraints, update } = formGroup2({
+  const {
+    f: form,
+    errors,
+    allValid: formValid,
+    valid,
+    constraints,
+    update,
+  } = formGroup2({
     schema,
     initial: initialValue,
   });

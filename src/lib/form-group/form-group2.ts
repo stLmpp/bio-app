@@ -38,10 +38,10 @@ class FormGroup<T extends RecordZod> {
     this.#entries = objectEntries(this.#schema);
     this.#form = writable(this.#getInitial());
     this.#errors = writable(this.#getInitialErrors());
-    this.form = this.#getForm();
+    this.f = this.#getForm();
     this.errors = toReadable(this.#errors);
     this.valid = this.#getValid();
-    this.formValid = this.#getFormValid();
+    this.allValid = this.#getFormValid();
     this.constraints = this.#getConstraints();
     this.#isDirty = this.#getIsDirty();
   }
@@ -52,10 +52,10 @@ class FormGroup<T extends RecordZod> {
   readonly #form: Writable<FormGroupValue<T>>;
   readonly #errors: Writable<FormGroupErrors<T>>;
 
-  readonly form: Writable<FormGroupValue<T>>;
+  readonly f: Writable<FormGroupValue<T>>;
   readonly errors: Readable<FormGroupErrors<T>>;
   readonly valid: Readable<FormGroupValid<T>>;
-  readonly formValid: Readable<boolean>;
+  readonly allValid: Readable<boolean>;
   readonly constraints: FormGroupConstraints<T>;
 
   readonly #isDirty: Record<keyof T, boolean>;
@@ -225,7 +225,7 @@ class FormGroup<T extends RecordZod> {
   }
 
   update = (updater: Updater<FormGroupValid<T>>): void => {
-    this.form.set(updater(get(this.#form)));
+    this.f.set(updater(get(this.#form)));
   };
 
   set = (value: FormGroupValue<T>): void => {
