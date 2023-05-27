@@ -9,10 +9,11 @@
 
   let gameIdSelected = browser || !data.games.length ? data.games[0].gameId : undefined;
 
-  let nextButtonProps: { type?: string; href?: string } = {};
+  let nextButtonProps: { type?: string; href?: string; disabled?: boolean } = {};
   $: {
     nextButtonProps = {
       type: browser ? 'button' : 'submit',
+      disabled: browser && !gameIdSelected,
     };
     if (browser && gameIdSelected) {
       nextButtonProps.href = `/b/score/submit/p/${data.platform.platformId}/g/${gameIdSelected}`;
@@ -43,7 +44,5 @@
     type="button"
     iconDescription="Previous"
   />
-  <Button icon={ChevronRight} {...nextButtonProps} disabled={browser && !gameIdSelected}>
-    Next
-  </Button>
+  <Button icon={ChevronRight} {...nextButtonProps}>Next</Button>
 </form>

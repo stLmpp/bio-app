@@ -12,10 +12,11 @@
       ? data.platformGameMiniGameModeStages[0].platformGameMiniGameModeStageId
       : undefined;
 
-  let nextButtonProps: { type?: string; href?: string } = {};
+  let nextButtonProps: { type?: string; href?: string; disabled?: boolean } = {};
   $: {
     nextButtonProps = {
       type: browser ? 'button' : 'submit',
+      disabled: browser && !platformGameMiniGameModeStageIdSelected,
     };
     if (browser && platformGameMiniGameModeStageIdSelected) {
       const { platform, game, platformGameMiniGame, platformGameMiniGameMode } = data;
@@ -51,11 +52,5 @@
     type="button"
     iconDescription="Previous"
   />
-  <Button
-    icon={ChevronRight}
-    {...nextButtonProps}
-    disabled={browser && !platformGameMiniGameModeStageIdSelected}
-  >
-    Next
-  </Button>
+  <Button icon={ChevronRight} {...nextButtonProps}>Next</Button>
 </form>

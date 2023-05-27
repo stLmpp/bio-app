@@ -12,10 +12,11 @@
       ? data.miniGames[0].platformGameMiniGameId
       : undefined;
 
-  let nextButtonProps: { type?: string; href?: string } = {};
+  let nextButtonProps: { type?: string; href?: string; disabled?: boolean } = {};
   $: {
     nextButtonProps = {
       type: browser ? 'button' : 'submit',
+      disabled: browser && !platformGameMiniGameIdSelected,
     };
     if (browser && platformGameMiniGameIdSelected) {
       nextButtonProps.href = `/b/score/submit/p/${data.platform.platformId}/g/${data.game.gameId}/mg/${platformGameMiniGameIdSelected}`;
@@ -46,11 +47,5 @@
     type="button"
     iconDescription="Previous"
   />
-  <Button
-    icon={ChevronRight}
-    {...nextButtonProps}
-    disabled={browser && !platformGameMiniGameIdSelected}
-  >
-    Next
-  </Button>
+  <Button icon={ChevronRight} {...nextButtonProps}>Next</Button>
 </form>

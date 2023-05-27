@@ -10,11 +10,12 @@
   let platformIdSelected =
     browser || !data.platforms.length ? data.platforms[0].platformId : undefined;
 
-  let nextButtonProps: { type?: string; href?: string } = {};
+  let nextButtonProps: { type?: string; href?: string; disabled?: boolean } = {};
 
   $: {
     nextButtonProps = {
       type: browser ? 'button' : 'submit',
+      disabled: browser && !platformIdSelected,
     };
     if (browser && platformIdSelected) {
       nextButtonProps.href = `/b/score/submit/p/${platformIdSelected}`;
@@ -39,11 +40,5 @@
     <p class="form-error">{form.error.message}</p>
   {/if}
 
-  <Button
-    icon={ChevronRight}
-    {...nextButtonProps}
-    disabled={browser && !platformIdSelected}
-  >
-    Next
-  </Button>
+  <Button icon={ChevronRight} {...nextButtonProps}>Next</Button>
 </form>
