@@ -1,7 +1,7 @@
-import './polyfills';
-import type { HandleFetch } from '@sveltejs/kit';
-import { addRequest, removeRequest } from '$lib/stores/requesting';
 import { ACCESS_TOKEN_COOKIE_KEY } from '$lib/constants';
+import { addRequest, removeRequest } from '$lib/stores/requesting';
+import type { HandleFetch } from '@sveltejs/kit';
+import './polyfills';
 
 export const handleFetch = (async ({ fetch, request, event }) => {
   addRequest();

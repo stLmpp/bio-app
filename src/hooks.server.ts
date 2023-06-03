@@ -52,7 +52,10 @@ export async function handle({ event, resolve }) {
   event.locals.user = response.user;
   event.locals.player = response.player;
   if (admin && !response.user.admin) {
-    return Response.redirect('/b', 300);
+    return Response.redirect(
+      new URL('/b', event.url.origin).toString(),
+      StatusCodes.MOVED_PERMANENTLY
+    );
   }
   return resolve(event);
 }

@@ -12,11 +12,12 @@
   import { Login } from 'carbon-icons-svelte';
   import { initFlash } from 'sveltekit-flash-message/client';
   import { z } from 'zod';
-  import type { ActionData } from './$types';
+  import type { ActionData, PageData } from './$types';
 
   const flash = initFlash(page);
 
   export let form: ActionData;
+  export let data: PageData;
 
   const usernameOrEmailMinLength = 3;
   const passwordMinLength = 6;
@@ -95,6 +96,13 @@
     <Button type="submit" disabled={loading} icon={Login}>Login</Button>
     <Button href="/register" kind="ghost">Register</Button>
   </div>
+  {#if data.authSteam}
+    <div class="login-steam">
+      <a href={data.authSteam.url}>
+        <img src="/steam-sign-in.png" alt="Steam sign in" width="180" height="35" />
+      </a>
+    </div>
+  {/if}
 </form>
 
 <style lang="scss">
@@ -111,6 +119,12 @@
     align-items: center;
     margin-top: 2rem;
     column-gap: 1rem;
+  }
+
+  .login-steam {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
   }
 
   .form-error {
