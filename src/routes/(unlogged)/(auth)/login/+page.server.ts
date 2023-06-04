@@ -49,6 +49,7 @@ export const load = loadFlashMessage(async ({ fetch, url, cookies }) => {
       throw redirect(StatusCodes.MOVED_PERMANENTLY, redirectTo);
     }
     if (responseError.errorCode !== ErrorCodes.AUTH_STEAM_TIMEOUT_GET_TOKEN) {
+      // TODO handler others errors
       const newUrl = new URL(url);
       newUrl.searchParams.delete('operationId');
       throw redirect(StatusCodes.MOVED_PERMANENTLY, newUrl.toString());
