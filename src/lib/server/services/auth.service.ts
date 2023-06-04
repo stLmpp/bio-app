@@ -65,6 +65,7 @@ export class AuthService {
       schema: z.object({
         token: z.string(),
       }),
+      method: 'POST',
     });
   }
 

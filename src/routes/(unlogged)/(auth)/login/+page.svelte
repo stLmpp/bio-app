@@ -88,8 +88,8 @@
       invalidText={$errors.password}
     />
   </div>
-  {#if form?.error}
-    <p class="form-error">{form?.error.message}</p>
+  {#if form?.error || data.operationError}
+    <p class="form-error">{form?.error.message ?? data.operationError?.message}</p>
   {/if}
 
   <div class="form-actions">
