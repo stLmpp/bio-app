@@ -16,6 +16,7 @@ import {
   type AuthRegisterBody,
 } from '../schemas/auth-register.schema';
 
+// TODO change all $env/dynamic/private
 export class AuthService {
   private constructor(private readonly _fetch: typeof fetch) {}
 
