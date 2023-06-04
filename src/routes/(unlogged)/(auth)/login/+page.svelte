@@ -97,7 +97,7 @@
     <Button href="/register" kind="ghost">Register</Button>
   </div>
   {#if data.authSteam}
-    <div class="login-steam">
+    <div class="mt-4 flex justify-center">
       <a href={data.authSteam.url}>
         <img src="/steam-sign-in.png" alt="Steam sign in" width="180" height="35" />
       </a>
@@ -107,6 +107,7 @@
 
 <style lang="scss">
   @use 'carbon-components/scss/globals/scss/vars' as var;
+
   .fields {
     display: flex;
     flex-direction: column;
@@ -119,12 +120,6 @@
     align-items: center;
     margin-top: 2rem;
     column-gap: 1rem;
-  }
-
-  .login-steam {
-    margin-top: 0.5rem;
-    display: flex;
-    justify-content: center;
   }
 
   .form-error {

@@ -1,10 +1,12 @@
 <script lang="ts">
+  import '../app.postcss';
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { isNavigating, setIsNavigating } from '$lib/stores/navigating';
   import { isRequesting } from '$lib/stores/requesting';
   import { ProgressBar } from 'carbon-components-svelte';
   import { combineLatest, debounceTime, map } from 'rxjs';
   import { slide } from 'svelte/transition';
+  import { browser } from '$app/environment';
 
   beforeNavigate(() => {
     setIsNavigating(true);
@@ -20,7 +22,7 @@
   );
 </script>
 
-{#if $isNavigatingWithDebounceTime}
+{#if browser && $isNavigatingWithDebounceTime}
   <div class="progress-bar" transition:slide>
     <ProgressBar size="sm" />
   </div>

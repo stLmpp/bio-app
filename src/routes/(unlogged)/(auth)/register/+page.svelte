@@ -108,7 +108,7 @@
   {/if}
   <div class="form-actions">
     <Button disabled={loading} type="submit" icon={RequestQuote}>Register</Button>
-    <Button href="/" kind="ghost">Login</Button>
+    <Button href="/login" kind="ghost">Login</Button>
   </div>
 </form>
 

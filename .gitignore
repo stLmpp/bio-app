@@ -11,6 +11,6 @@ vite.config.ts.timestamp-*
 public
 .idea
 ui-debug.log
-static/global.css
+src/global.css
 .firebase
 firebase-debug.log

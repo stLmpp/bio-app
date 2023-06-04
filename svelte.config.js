@@ -1,14 +1,23 @@
+import sveltePreprocess from 'svelte-preprocess';
 import { vitePreprocess } from '@sveltejs/kit/vite';
 import adapter from '@sveltejs/adapter-node';
+import { optimizeCss, optimizeImports } from 'carbon-preprocess-svelte';
+
+const preprocess = [
+  vitePreprocess(),
+  sveltePreprocess({
+    postcss: true,
+  }),
+  optimizeImports(),
+];
+
+if (process.env.NODE_ENV === 'production') {
+  preprocess.push(optimizeCss());
+}
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: [
-    vitePreprocess(),
-    // optimizeImports(),
-    // icons(), https://github.com/carbon-design-system/carbon-preprocess-svelte/issues/28
-    // elements({ cssVars: true, theme: 'g100' }),
-  ],
+  preprocess,
   onwarn: (warning, handler) => {
     if (warning.filename.startsWith('/node_modules/')) {
       return;

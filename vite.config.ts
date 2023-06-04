@@ -28,5 +28,8 @@ export default defineConfig(() => {
   const plugins: PluginOption[] = [sveltekit(), sassWatch()];
   return {
     plugins,
+    optimizeDeps: {
+      exclude: ['carbon-components-svelte', 'carbon-icons-svelte'],
+    },
   };
 });
