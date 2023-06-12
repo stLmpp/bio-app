@@ -6,6 +6,7 @@
   import {
     Button,
     InlineNotification,
+    Modal,
     PasswordInput,
     TextInput,
   } from 'carbon-components-svelte';
@@ -13,6 +14,7 @@
   import { initFlash } from 'sveltekit-flash-message/client';
   import { z } from 'zod';
   import type { ActionData, PageData } from './$types';
+  import { goto } from '$app/navigation';
 
   const flash = initFlash(page);
 
@@ -54,6 +56,29 @@
     subtitle="Registered succesfully! Please login now to access the app"
   />
 {/if}
+
+<Modal
+  modalHeading="Register"
+  bind:open={data.offerToRegister}
+  primaryButtonText="Register"
+  secondaryButtonText="Cancel"
+  on:click:button--primary={() => {
+    const search = new URLSearchParams();
+    const redirectTo = $page.url.searchParams.get('redirectTo');
+    if (redirectTo) {
+      search.set('redirectTo', redirectTo);
+    }
+    goto(`/register/steam/${data.operationId}/?${search.toString()}`);
+  }}
+  on:click:button--secondary={() => {
+    const url = new URL($page.url);
+    url.searchParams.delete('operationId');
+    goto(`${url.pathname}${url.search}`);
+  }}
+>
+  <p>We could not find you in our databases.</p>
+  <p>If you like to register, please click the button "Register" below.</p>
+</Modal>
 
 <form
   method="POST"

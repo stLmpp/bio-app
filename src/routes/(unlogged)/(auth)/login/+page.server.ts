@@ -41,6 +41,7 @@ export const load = loadFlashMessage(async ({ fetch, url, cookies }) => {
 
   const operationId = url.searchParams.get('operationId');
   let operationError: HttpError | undefined = undefined;
+  let offerToRegister = false;
   if (operationId) {
     const [responseError, response] = await authService.getSteamAuthToken(operationId);
     if (response) {
@@ -48,21 +49,27 @@ export const load = loadFlashMessage(async ({ fetch, url, cookies }) => {
       const redirectTo = url.searchParams.get('redirectTo') ?? '/a';
       throw redirect(StatusCodes.MOVED_PERMANENTLY, redirectTo);
     }
-    if (responseError.errorCode !== ErrorCodes.AUTH_STEAM_TIMEOUT_GET_TOKEN) {
-      // TODO handler others errors
-      const newUrl = new URL(url);
-      newUrl.searchParams.delete('operationId');
-      throw redirect(StatusCodes.MOVED_PERMANENTLY, newUrl.toString());
+    console.log(responseError);
+    switch (responseError.errorCode) {
+      case ErrorCodes.AUTH_STEAM_PLAYER_NOT_FOUND:
+      case ErrorCodes.AUTH_STEAM_USER_NOT_FOUND: {
+        offerToRegister = true;
+        break;
+      }
+      default: {
+        operationError = responseError;
+        break;
+      }
     }
-    operationError = responseError;
   }
 
   return {
+    operationId,
+    offerToRegister,
     operationError,
     authSteam: authService
-      .getSteamAuthUrl({
+      .getSteamAuthUrlLogin({
         redirectTo: url.toString(),
-        replyTo: 'auth-steam_login',
       })
       .then(([, data]) => data ?? null),
   };

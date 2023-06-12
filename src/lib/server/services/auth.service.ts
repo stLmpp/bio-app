@@ -15,6 +15,14 @@ import {
   AuthRegisterSchema,
   type AuthRegisterBody,
 } from '../schemas/auth-register.schema';
+import {
+  AuthSteamExtendOperationSchema,
+  type AuthSteamExtendOperationBody,
+} from '../schemas/auth-steam-extend-operation.schema';
+import {
+  AuthSteamRegisterWithOperationSchema,
+  type AuthSteamRegisterWithOperationBody,
+} from '../schemas/auth-steam-register-with-operation.schema';
 
 // TODO change all $env/dynamic/private
 export class AuthService {
@@ -51,7 +59,11 @@ export class AuthService {
     });
   }
 
-  getSteamAuthUrl(query: AuthGetSteamAuthUrlQuery) {
+  getSteamAuthUrlLogin(query: Omit<AuthGetSteamAuthUrlQuery, 'replyTo'>) {
+    return this.getSteamAuthUrl({ ...query, replyTo: 'auth-steam_login' });
+  }
+
+  private getSteamAuthUrl(query: AuthGetSteamAuthUrlQuery) {
     return httpServer(`${AUTH_STEAM_END_POINT}/url`, {
       fetch: this._fetch,
       schema: AuthGetSteamAuthUrlSchema,
@@ -66,6 +78,29 @@ export class AuthService {
         token: z.string(),
       }),
       method: 'POST',
+    });
+  }
+
+  extendSteamOperation(operationId: string) {
+    return httpServer(`${AUTH_STEAM_END_POINT}/operation/${operationId}/extend`, {
+      fetch: this._fetch,
+      method: 'POST',
+      schema: AuthSteamExtendOperationSchema,
+      body: {
+        secondsToExtend: 3600,
+      } satisfies AuthSteamExtendOperationBody,
+    });
+  }
+
+  registerWithSteamOperation(
+    operationId: string,
+    body: AuthSteamRegisterWithOperationBody
+  ) {
+    return httpServer(`${AUTH_STEAM_END_POINT}/operation/${operationId}/register`, {
+      fetch: this._fetch,
+      method: 'POST',
+      schema: AuthSteamRegisterWithOperationSchema,
+      body,
     });
   }
 
