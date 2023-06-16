@@ -22,7 +22,7 @@
   const passwordMinLength = 6;
   const passwordPattern = '[A-Za-z\\d]{6,}';
 
-  const { f, allValid, showAllErrors, constraints, errors, valid } = formGroup({
+  const { f, getAllValid, showAllErrors, constraints, errors, valid } = formGroup({
     schema: {
       username: z
         .string()
@@ -56,9 +56,10 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$allValid) {
+    if (!getAllValid()) {
       showAllErrors();
-      return cancel();
+      cancel();
+      return;
     }
     loading = true;
     return async ({ update }) => {

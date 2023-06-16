@@ -16,7 +16,7 @@
   // TODO figure out a way to send only edited fields
   // TODO must be a global solution with formGroup
 
-  const { f, showAllErrors, valid, allValid, errors, constraints } = formGroup({
+  const { f, showAllErrors, valid, getAllValid, errors, constraints } = formGroup({
     schema: {
       shortName: z.string().nonempty('Short name is required').max(SHORT_NAME_MAX_LENGTH),
       name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
@@ -37,9 +37,10 @@
   use:enhanceForm={({ cancel }) => {
     // const entries = Object.entries($groupDirty);
     // if (!$allValid || !entries.length) {
-    if (!$allValid) {
+    if (!getAllValid()) {
       showAllErrors();
-      return cancel();
+      cancel();
+      return;
     }
     // for (const key of formData.keys()) {
     //   formData.delete(key);

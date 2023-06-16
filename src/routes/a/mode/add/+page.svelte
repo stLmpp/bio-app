@@ -13,7 +13,7 @@
   const PLAYER_QUANTITY_MAX = 100;
   let loading = false;
 
-  const { f, constraints, errors, showAllErrors, valid, allValid } = formGroup({
+  const { f, constraints, errors, showAllErrors, valid, getAllValid } = formGroup({
     schema: {
       name: z.string().nonempty('Name is required').max(NAME_MAX_LENGTH),
       playerQuantity: z
@@ -44,9 +44,10 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$allValid) {
+    if (!getAllValid()) {
       showAllErrors();
-      return cancel();
+      cancel();
+      return;
     }
     loading = true;
     return async ({ update }) => {

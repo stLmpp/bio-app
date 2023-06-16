@@ -24,7 +24,7 @@
   const usernameOrEmailMinLength = 3;
   const passwordMinLength = 6;
   let loading = false;
-  const { f, showAllErrors, valid, errors, allValid, constraints } = formGroup({
+  const { f, showAllErrors, valid, errors, constraints, getAllValid } = formGroup({
     schema: {
       usernameOrEmail: z
         .string()
@@ -83,9 +83,10 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$allValid) {
+    if (!getAllValid()) {
       showAllErrors();
-      return cancel();
+      cancel();
+      return;
     }
     loading = true;
     return async ({ update }) => {

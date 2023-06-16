@@ -12,7 +12,7 @@
 
   let loading = false;
 
-  const { f, constraints, allValid, showAllErrors, valid, errors } = formGroup({
+  const { f, constraints, getAllValid, showAllErrors, valid, errors } = formGroup({
     schema: {
       regionId: z.number().min(-1),
       name: z.string().min(3).max(50),
@@ -31,9 +31,10 @@
 <form
   method="POST"
   use:enhanceForm={({ cancel }) => {
-    if (!$allValid) {
+    if (!getAllValid()) {
       showAllErrors();
-      return cancel();
+      cancel();
+      return;
     }
     loading = true;
     return async ({ update }) => {

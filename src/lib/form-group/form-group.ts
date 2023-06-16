@@ -6,6 +6,7 @@ import {
   ZodNumber,
   ZodOptional,
   ZodString,
+  type ZodStringCheck,
   type ZodType,
 } from 'zod';
 import { formatZodErrorString } from '../zod-error-formatter';
@@ -33,24 +34,26 @@ export function formGroup<T extends RecordZod>(
 class FormGroup<T extends RecordZod> {
   constructor({ schema, initial, initialValidation }: FormGroupOptions<T>) {
     this.#schema = schema;
-    this.#initial = initial;
+    this.#initialValue = initial;
     this.#initialValidation = !!initialValidation;
-    this.#entries = objectEntries(this.#schema);
+    this.#schemaEntries = objectEntries(this.#schema);
     this.#form = writable({ ...initial });
     this.#errors = writable(this.#getInitialErrors());
+    this.#isDirty = this.#getIsDirty();
     this.f = this.#getForm();
     this.errors = toReadable(this.#errors);
     this.valid = this.#getValid();
     this.allValid = this.#getFormValid();
     this.constraints = this.#getConstraints();
-    this.#isDirty = this.#getIsDirty();
   }
+
   readonly #initialValidation: boolean;
-  readonly #initial: FormGroupInitialValue<T>;
+  readonly #initialValue: FormGroupInitialValue<T>;
   readonly #schema: T;
-  readonly #entries: Entries<T>;
+  readonly #schemaEntries: Entries<T>;
   readonly #form: Writable<FormGroupValue<T>>;
   readonly #errors: Writable<FormGroupErrors<T>>;
+  readonly #isDirty: Record<keyof T, boolean>;
 
   readonly f: Writable<FormGroupValue<T>>;
   readonly errors: Readable<FormGroupErrors<T>>;
@@ -58,11 +61,9 @@ class FormGroup<T extends RecordZod> {
   readonly allValid: Readable<boolean>;
   readonly constraints: FormGroupConstraints<T>;
 
-  readonly #isDirty: Record<keyof T, boolean>;
-
   #getIsDirty() {
     const dirty = {} as Record<keyof T, boolean>;
-    for (const [key] of this.#entries) {
+    for (const [key] of this.#schemaEntries) {
       dirty[key] = false;
     }
     return dirty;
@@ -71,28 +72,38 @@ class FormGroup<T extends RecordZod> {
   #getValid(): Readable<FormGroupValid<T>> {
     if (!browser) {
       const object = {} as FormGroupValid<T>;
-      for (const [key] of this.#entries) {
+      for (const [key] of this.#schemaEntries) {
         object[key] = true;
       }
       return readable(object);
     }
-    return derived(this.errors, (errors) => {
-      const valid = {} as FormGroupValid<T>;
-      for (const [key] of this.#entries) {
-        const hasError = typeof errors[key] !== 'undefined';
-        valid[key] = this.#initialValidation
+    return derived(this.errors, (errors) => this.#getValidFromErrors(errors));
+  }
+
+  #getValidFromErrors(
+    errors: FormGroupErrors<T>,
+    ignoreInitialValidation = false
+  ): FormGroupValid<T> {
+    const valid = {} as FormGroupValid<T>;
+    for (const [key] of this.#schemaEntries) {
+      const hasError = typeof errors[key] !== 'undefined';
+      valid[key] =
+        ignoreInitialValidation || this.#initialValidation
           ? !hasError
           : !this.#isDirty[key] || !hasError;
-      }
-      return valid;
-    });
+    }
+    return valid;
   }
 
   #getFormValid(): Readable<boolean> {
     if (!browser) {
       return readable(true);
     }
-    return derived(this.valid, (valid) => Object.values(valid).every(Boolean));
+    return derived(this.valid, (valid) => this.#getAllValidFromValid(valid));
+  }
+
+  #getAllValidFromValid(valid: FormGroupValid<T>): boolean {
+    return Object.values(valid).every(Boolean);
   }
 
   #getRealSchema(schema: ZodType): ZodType {
@@ -106,10 +117,7 @@ class FormGroup<T extends RecordZod> {
   }
 
   #getRequiredFromSchema(schema: ZodType): boolean {
-    if (schema instanceof ZodDefault) {
-      return true;
-    }
-    if (schema instanceof ZodOptional) {
+    if (schema instanceof ZodDefault || schema instanceof ZodOptional) {
       return false;
     }
     if (schema instanceof ZodEffects) {
@@ -129,12 +137,11 @@ class FormGroup<T extends RecordZod> {
     if (realSchema instanceof ZodString) {
       object.maxlength = realSchema.maxLength ?? undefined;
       object.minlength = realSchema.minLength ?? undefined;
-      for (const check of realSchema._def.checks) {
-        if (check.kind === 'regex') {
-          object.pattern = check.regex.source;
-          break;
-        }
-      }
+      const checkRegex = realSchema._def.checks.find(
+        (value): value is Extract<ZodStringCheck, { kind: 'regex' }> =>
+          value.kind === 'regex'
+      );
+      object.pattern = checkRegex?.regex.source;
     }
     if (realSchema instanceof ZodNumber) {
       object.max = realSchema.maxValue ?? undefined;
@@ -145,8 +152,8 @@ class FormGroup<T extends RecordZod> {
 
   #getConstraints(): FormGroupConstraints<T> {
     const constraints = {} as FormGroupConstraints<T>;
-    for (const [key, value] of this.#entries) {
-      constraints[key] = this.#getConstraint(key, value);
+    for (const [key, schema] of this.#schemaEntries) {
+      constraints[key] = this.#getConstraint(key, schema);
     }
     return constraints;
   }
@@ -155,9 +162,13 @@ class FormGroup<T extends RecordZod> {
     if (!this.#initialValidation) {
       return {};
     }
+    return this.#getErrors(this.#initialValue);
+  }
+
+  #getErrors(value: FormGroupValue<T>): FormGroupErrors<T> {
     const errors: FormGroupErrors<T> = {};
-    for (const [key, value] of this.#entries) {
-      const result = value.safeParse(this.#initial[key]);
+    for (const [key, schema] of this.#schemaEntries) {
+      const result = schema.safeParse(value[key]);
       errors[key] = result.success
         ? undefined
         : formatZodErrorString(result.error, { onlyFirstError: true });
@@ -197,15 +208,26 @@ class FormGroup<T extends RecordZod> {
   };
 
   showAllErrors = (): void => {
+    this.markAllAsDirty();
     const form = get(this.#form);
     const newErrors = { ...get(this.#errors) };
-    for (const [key, schema] of this.#entries) {
-      const value = form[key];
-      const result = schema.safeParse(value);
+    for (const [key, schema] of this.#schemaEntries) {
+      const result = schema.safeParse(form[key]);
       newErrors[key] = result.success
         ? undefined
         : formatZodErrorString(result.error, { onlyFirstError: true });
     }
     this.#errors.set(newErrors);
   };
+
+  markAllAsDirty = (): void => {
+    for (const [key] of this.#schemaEntries) {
+      this.#isDirty[key] = true;
+    }
+  };
+
+  getAllValid = (): boolean =>
+    this.#getAllValidFromValid(
+      this.#getValidFromErrors(this.#getErrors(get(this.#form)), true)
+    );
 }
