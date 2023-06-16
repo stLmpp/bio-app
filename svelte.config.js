@@ -30,6 +30,9 @@ const config = {
       $lib: 'src/lib',
     },
   },
+  compilerOptions: {
+    immutable: true,
+  },
 };
 
 export default config;

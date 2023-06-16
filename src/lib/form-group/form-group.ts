@@ -36,7 +36,7 @@ class FormGroup<T extends RecordZod> {
     this.#initial = initial;
     this.#initialValidation = !!initialValidation;
     this.#entries = objectEntries(this.#schema);
-    this.#form = writable(this.#getInitial());
+    this.#form = writable({ ...initial });
     this.#errors = writable(this.#getInitialErrors());
     this.f = this.#getForm();
     this.errors = toReadable(this.#errors);
@@ -93,17 +93,6 @@ class FormGroup<T extends RecordZod> {
       return readable(true);
     }
     return derived(this.valid, (valid) => Object.values(valid).every(Boolean));
-  }
-
-  #getImmutableKeys(key: keyof T) {
-    const value = `__${String(key)}__value`;
-    const newValue = `__${String(key)}__newValue`;
-    const setValue = `__${String(key)}__setValue`;
-    return {
-      value,
-      newValue,
-      setValue,
-    };
   }
 
   #getRealSchema(schema: ZodType): ZodType {
@@ -176,47 +165,9 @@ class FormGroup<T extends RecordZod> {
     return errors;
   }
 
-  #getInitial(): FormGroupValue<T> {
-    const initial = { ...this.#initial };
-    for (const [key] of this.#entries) {
-      if (typeof initial[key] === 'undefined') {
-        initial[key] = undefined;
-      }
-    }
-    const newObject: Record<any, any> = {};
-    for (const [key, value] of objectEntries(initial)) {
-      const keys = this.#getImmutableKeys(key);
-      Object.defineProperties(newObject, {
-        [keys.value]: {
-          value,
-          writable: true,
-        },
-        [keys.newValue]: {
-          value,
-          writable: true,
-        },
-        [keys.setValue]: {
-          value: (newValue: any) => {
-            newObject[keys.value] = newValue;
-          },
-          enumerable: false,
-          writable: false,
-        },
-        [key]: {
-          set: (newValue: any) => {
-            newObject[keys.newValue] = newValue;
-          },
-          get: () => newObject[keys.value],
-          enumerable: true,
-        },
-      });
-    }
-    return newObject as FormGroupValue<T>;
-  }
-
   #getForm(): Writable<FormGroupValue<T>> {
     return {
-      subscribe: this.#form.subscribe,
+      subscribe: (callback) => this.#form.subscribe((value) => callback({ ...value })),
       set: (value) => this.set(value),
       update: () => {
         throw new Error('Update is not allowed');
@@ -225,36 +176,32 @@ class FormGroup<T extends RecordZod> {
   }
 
   update = (updater: Updater<FormGroupValid<T>>): void => {
-    this.f.set(updater(get(this.#form)));
+    this.#form.set(updater(get(this.#form)));
   };
 
-  set = (value: FormGroupValue<T>): void => {
+  set = (newForm: FormGroupValue<T>): void => {
+    const oldForm = get(this.#form);
     const newErrors = { ...get(this.#errors) };
-    for (const key of objectKeys(value)) {
-      const keys = this.#getImmutableKeys(key);
+    for (const key of objectKeys(newForm)) {
       const validator = this.#schema[key];
-      const oldValue = value[keys.value];
-      const newValue = value[keys.newValue];
-      if (oldValue !== newValue) {
+      if (oldForm[key] !== newForm[key]) {
         this.#isDirty[key] = true;
-        const result = validator.safeParse(newValue);
+        const result = validator.safeParse(newForm[key]);
         newErrors[key] = result.success
           ? undefined
           : formatZodErrorString(result.error, { onlyFirstError: true });
-        value[keys.setValue](newValue);
       }
     }
     this.#errors.set(newErrors);
-    this.#form.set(value);
+    this.#form.set({ ...newForm });
   };
 
   showAllErrors = (): void => {
-    const value = get(this.#form);
+    const form = get(this.#form);
     const newErrors = { ...get(this.#errors) };
     for (const [key, schema] of this.#entries) {
-      const keys = this.#getImmutableKeys(key);
-      const newValue = value[keys.value];
-      const result = schema.safeParse(newValue);
+      const value = form[key];
+      const result = schema.safeParse(value);
       newErrors[key] = result.success
         ? undefined
         : formatZodErrorString(result.error, { onlyFirstError: true });
