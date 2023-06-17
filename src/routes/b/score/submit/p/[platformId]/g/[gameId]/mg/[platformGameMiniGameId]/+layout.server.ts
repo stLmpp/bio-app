@@ -20,9 +20,9 @@ export async function load({ fetch, params, parent }) {
   }
   const platformGameMiniGameModeService = PlatformGameMiniGameModeService.create(fetch);
   const [responseError, platformGameMiniGameModes] =
-    await platformGameMiniGameModeService.get({
-      platformGameMiniGameId: params.platformGameMiniGameId,
-    });
+    await platformGameMiniGameModeService.getByPlatformGameMiniGameId(
+      params.platformGameMiniGameId
+    );
   if (responseError) {
     throw error(responseError.status, responseError);
   }

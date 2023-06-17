@@ -10,9 +10,17 @@ import {
   type PlatformGameMiniGamePostBody,
 } from '../schemas/platform-game-mini-game-post.schema';
 import { PlatformGameMiniGameGetOneSchema } from '../schemas/platform-game-mini-game-get-one.schema';
+import { PlatformGameMiniGameGetByPlatformIdSchema } from '../schemas/platform-game-mini-game-get-by-platform-id.schema';
 
 export class PlatformGameMiniGameService {
   private constructor(private readonly _fetch: typeof fetch) {}
+
+  getByPlatformId(platformId: string) {
+    return httpServer(`${PLATFORM_GAME_MINI_GAME_END_POINT}/platform/${platformId}`, {
+      fetch: this._fetch,
+      schema: PlatformGameMiniGameGetByPlatformIdSchema,
+    });
+  }
 
   get(query?: PlatformGameMiniGameGetQuery) {
     return httpServer(PLATFORM_GAME_MINI_GAME_END_POINT, {

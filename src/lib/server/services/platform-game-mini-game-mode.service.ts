@@ -1,6 +1,7 @@
 import { PLATFORM_GAME_MINI_GAME_MODE_END_POINT } from '$env/static/private';
 import { z } from 'zod';
 import { httpServer } from '../http-server';
+import { PlatformGameMiniGameModeGetByPlatformGameMiniGameIdSchema } from '../schemas/platform-game-mini-game-mode-get-by-platform-game-mini-game-id.schema';
 import { PlatformGameMiniGameModeGetOneSchema } from '../schemas/platform-game-mini-game-mode-get-one.schema';
 import {
   PlatformGameMiniGameModeGetSchema,
@@ -13,6 +14,20 @@ import {
 
 export class PlatformGameMiniGameModeService {
   private constructor(private readonly _fetch: typeof fetch) {}
+
+  getByPlatformGameMiniGameId(platformGameMiniGameId: string) {
+    return httpServer(
+      [
+        PLATFORM_GAME_MINI_GAME_MODE_END_POINT,
+        'platform-game-mini-game',
+        platformGameMiniGameId,
+      ],
+      {
+        fetch: this._fetch,
+        schema: PlatformGameMiniGameModeGetByPlatformGameMiniGameIdSchema,
+      }
+    );
+  }
 
   get(query?: PlatformGameMiniGameModeGetQuery) {
     return httpServer(PLATFORM_GAME_MINI_GAME_MODE_END_POINT, {

@@ -1,6 +1,7 @@
 import { z, ZodSchema, ZodVoid } from 'zod';
 import { addErrorNotification } from './stores/error-notification';
 import { Exceptions } from './exceptions';
+import { isArray } from './is-array';
 
 export const HttpErrorSchema = z.object({
   status: z.number(),
@@ -16,7 +17,10 @@ export type HttpResponse<T extends ZodSchema> =
   | HttpResponseError
   | HttpResponseSuccess<T>;
 
-function getNewUrl(url: string | URL, browser: boolean): URL {
+function getNewUrl(url: string | URL | string[], browser: boolean): URL {
+  if (isArray(url)) {
+    url = url.join('/').replaceAll('//', '/');
+  }
   if (typeof url !== 'string') {
     return url;
   }
@@ -30,7 +34,7 @@ function getNewUrl(url: string | URL, browser: boolean): URL {
 }
 
 export function _internalHttpFactory(browser: true): <T extends ZodSchema>(
-  url: string | URL,
+  url: string | URL | string[],
   options: Omit<RequestInit, 'body'> & {
     schema: T;
     body?: unknown;
@@ -39,7 +43,7 @@ export function _internalHttpFactory(browser: true): <T extends ZodSchema>(
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
-  url: string | URL,
+  url: string | URL | string[],
   options: Omit<RequestInit, 'body'> & {
     fetch: typeof fetch;
     schema: T;
@@ -49,7 +53,7 @@ export function _internalHttpFactory(browser: false): <T extends ZodSchema>(
   }
 ) => Promise<HttpResponse<T>>;
 export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
-  url: string | URL,
+  url: string | URL | string[],
   options: Omit<RequestInit, 'body'> & {
     fetch?: typeof fetch;
     schema: T;
@@ -59,7 +63,7 @@ export function _internalHttpFactory(browser: boolean): <T extends ZodSchema>(
   }
 ) => Promise<HttpResponse<T>> {
   return async function http<T extends ZodSchema>(
-    url: string | URL,
+    url: string | URL | string[],
     {
       fetch: _fetch,
       schema,
