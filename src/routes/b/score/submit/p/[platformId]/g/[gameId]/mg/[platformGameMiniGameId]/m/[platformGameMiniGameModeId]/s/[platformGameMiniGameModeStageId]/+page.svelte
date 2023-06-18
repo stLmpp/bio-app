@@ -58,7 +58,7 @@
     initialValue[hostKey] = player === 1;
     initialValue[platformGameMiniGameModeCharacterCostumeIdKey] =
       data.characters[0].platformGameMiniGameModeCharacterCostumeId;
-    initialValue[playerIdKey] = '';
+    initialValue[playerIdKey] = player === 1 ? data.player.playerId : '';
     initialValue[platformInputTypeIdKey] = undefined;
     initialValue[bulletKillsKey] = undefined;
   }
@@ -113,6 +113,7 @@
     invalidText={$errors[playerIdKey] ?? ''}
     labelText="Player id"
     placeholder="Player id"
+    readonly={playerNumber === 1 && !data.user.admin}
   />
   <Select
     labelText="Character"
