@@ -11,11 +11,15 @@ export function formatZodErrorString(
   zodErrorOrErrors: ZodError | ZodError[],
   options: {
     onlyFirstError?: boolean;
+    removeKeyFromMessage?: boolean;
   } = {}
 ): string {
   const errors = formatZodError(zodErrorOrErrors);
   const newErrors = errors.map(
-    (error) => `${error.path ? `${error.path}: ` : ''}${error.message}`
+    (error) =>
+      `${error.path && !options.removeKeyFromMessage ? `${error.path}: ` : ''}${
+        error.message
+      }`
   );
   if (options.onlyFirstError) {
     return newErrors[0];

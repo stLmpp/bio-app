@@ -230,4 +230,12 @@ class FormGroup<T extends RecordZod> {
     this.#getAllValidFromValid(
       this.#getValidFromErrors(this.#getErrors(get(this.#form)), true)
     );
+
+  reset = (): void => {
+    for (const [key] of this.#schemaEntries) {
+      this.#isDirty[key] = false;
+    }
+    this.#form.set({ ...this.#initialValue });
+    this.#errors.set(this.#getInitialErrors());
+  };
 }

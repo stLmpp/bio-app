@@ -35,11 +35,11 @@ export const actions = {
   },
 } satisfies Actions;
 
-export const load = (async ({ fetch, params }) => {
-  const authService = AuthService.create(fetch);
-  const regionService = RegionService.create(fetch);
+export const load = (async (event) => {
+  const authService = AuthService.create(event.fetch);
+  const regionService = RegionService.create(event);
   const [response, regionsResponse] = await Promise.all([
-    authService.extendSteamOperation(params.operationId),
+    authService.extendSteamOperation(event.params.operationId),
     regionService.get(),
   ]);
   const [responseError, extend] = response;

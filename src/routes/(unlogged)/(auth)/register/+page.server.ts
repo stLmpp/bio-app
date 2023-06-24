@@ -32,14 +32,11 @@ export const actions = {
   },
 };
 
-export async function load({ fetch, setHeaders }) {
-  const regionService = RegionService.create(fetch);
+export async function load(event) {
+  const regionService = RegionService.create(event);
   const [regionsError, regions] = await regionService.get();
   if (regionsError) {
     throw error(regionsError.status, regionsError);
   }
-  setHeaders({
-    'Cache-Control': 'public, max-age=3600',
-  });
   return { regions };
 }

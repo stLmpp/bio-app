@@ -65,6 +65,14 @@
       text: 'Link PGMG -> Mode',
       tooltip: 'Link Platform game mini game -> Mode',
     },
+    {
+      href: '/a/player/add/steam',
+      text: 'Create steam player',
+    },
+    {
+      href: '/a/player/add',
+      text: 'Create player',
+    },
   ];
 </script>
 

@@ -8,8 +8,8 @@ type Exception =
 export const Exceptions = {
   InvalidFormData: (args) => ({
     errorCode: 'FRONT-0001',
-    error: args?.error ?? 'Invalid form data input',
-    message: 'Invalid form data input',
+    error: args?.error || 'Invalid form data input',
+    message: args?.message || 'Invalid form data input',
     status: StatusCodes.BAD_REQUEST,
   }),
   InvalidBody: (args) => ({
